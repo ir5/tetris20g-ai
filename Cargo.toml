@@ -1,0 +1,6 @@
+[package]
+name = "tetris"
+version = "0.1.0"
+authors = ["Mitsuru Kusumoto <kusumoto.mitsuru@gmail.com>"]
+
+[dependencies]
