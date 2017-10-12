@@ -4,3 +4,4 @@ version = "0.1.0"
 authors = ["Mitsuru Kusumoto <kusumoto.mitsuru@gmail.com>"]
 
 [dependencies]
+pancurses = "0.11"
