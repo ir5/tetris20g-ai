@@ -3,21 +3,24 @@ extern crate pancurses;
 mod display;
 mod core;
 
+use core::Game;
 use display::Display;
-use core::{Field, CurrentPieceState, Game};
 
 fn main() {
-    let mut f = core::EMPTY_FIELD;
-    f[19][0] = b'I';
-
-    let game = Game {
-        field: f,
-        state: CurrentPieceState { piece_type: b'I', x: 0, y: 0, rotation: 0 },
-        piece_array: vec![],
-        current_piece_id: 0,
-    };
-
+    // test loop
+    let mut seq = vec![];
+    for i in 0..1000 {
+        let m: Vec<u8> = "IOSZJLT".bytes().collect();
+        let idx = i % 7;
+        seq.push(m[idx]);
+    }
+    let mut game = Game::new(seq);
     let display = Display::new();
-    display.draw(&game);
-    let res = display.wait_key();
+    loop {
+        display.draw(&game.field, &game.state, game.next_piece());
+        let key = display.wait_key();
+        if let Some(key) = key {
+            game.input(key);
+        }
+    }
 }

@@ -1,6 +1,7 @@
 extern crate pancurses;
 
-use core::Game;
+use core;
+use core::{Field, CurrentPieceState};
 
 pub struct Display {
     window: pancurses::Window,
@@ -10,17 +11,18 @@ impl Display {
     pub fn new() -> Display {
         let window = pancurses::initscr();
         window.keypad(true);
+        pancurses::resize_term(30, 40);
         pancurses::cbreak();
         pancurses::noecho();
         pancurses::start_color();
         pancurses::curs_set(0);
-        pancurses::init_color(b'I' as i16, 900, 0, 0);
-        pancurses::init_color(b'O' as i16, 900, 900, 0);
-        pancurses::init_color(b'S' as i16, 1000, 100, 1000);
-        pancurses::init_color(b'Z' as i16, 100, 1000, 100);
-        pancurses::init_color(b'L' as i16, 1000, 600, 0);
-        pancurses::init_color(b'J' as i16, 200, 200, 1000);
-        pancurses::init_color(b'T' as i16, 0, 800, 800);
+        pancurses::init_color(b'I' as i16, 900, 400, 400);
+        pancurses::init_color(b'O' as i16, 900, 900, 400);
+        pancurses::init_color(b'S' as i16, 1000, 400, 1000);
+        pancurses::init_color(b'Z' as i16, 500, 1000, 200);
+        pancurses::init_color(b'L' as i16, 1000, 700, 300);
+        pancurses::init_color(b'J' as i16, 500, 500, 1000);
+        pancurses::init_color(b'T' as i16, 300, 900, 900);
         pancurses::init_color(1i16, 200, 200, 200);
         pancurses::init_color(2i16, 0, 0, 0);
         pancurses::init_color(3i16, 800, 800, 800);
@@ -33,15 +35,52 @@ impl Display {
         Display { window }
     }
 
-    pub fn draw(&self, game: &Game) {
+    pub fn draw(&self, field: &Field, state: &CurrentPieceState, next_piece_type: Option<u8>) {
         self.window.erase();
-        for (i, &row) in game.field.iter().enumerate() {
+        let offset = 5;
+        // draw field
+        for (i, &row) in field.iter().enumerate() {
             for (j, &cell) in row.iter().enumerate() {
-                self.window.mv(i as i32, j as i32);
+                self.window.mv(offset + i as i32, j as i32);
                 self.window.attrset(pancurses::COLOR_PAIR(cell as u64));
                 self.window.addch(if cell == b'.' { '.' } else { ' ' });
             }
         }
+        // draw current block
+        let shape = core::shape(state.piece_type, state.rotation);
+        for (i, &row) in shape.iter().enumerate() {
+            for (j, cell) in row.bytes().enumerate() {
+                if cell == b'.' {
+                    continue;
+                }
+                let y = (i as i32) + (state.y as i32);
+                let x = (j as i32) + (state.x as i32);
+                self.window.mv(offset + y, x);
+                self.window.attrset(
+                    pancurses::COLOR_PAIR(state.piece_type as u64),
+                );
+                self.window.addch('#');
+            }
+        }
+        // draw next block
+        if let Some(next_piece_type) = next_piece_type {
+            let shape = core::shape(next_piece_type, 0);
+            for (i, &row) in shape.iter().enumerate() {
+                for (j, cell) in row.bytes().enumerate() {
+                    if cell == b'.' {
+                        continue;
+                    }
+                    let y = i as i32;
+                    let x = j as i32;
+                    self.window.mv(y, 3 + x);
+                    self.window.attrset(
+                        pancurses::COLOR_PAIR(next_piece_type as u64),
+                    );
+                    self.window.addch(' ');
+                }
+            }
+        }
+        // refresh the window
         self.window.refresh();
     }
 
