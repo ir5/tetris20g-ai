@@ -345,6 +345,7 @@ impl Game {
                         }
                     } else {
                         self.state = next_state;
+                        self.charge = 0;
                     }
 
                     if let Command::Move(0, _) = command {

@@ -1,18 +1,20 @@
+extern crate rand;
 extern crate pancurses;
 
-mod display;
 mod core;
+mod display;
 
 use core::Game;
 use display::Display;
+use rand::Rng;
 
 fn main() {
     // test loop
+    let mut rng = rand::thread_rng();
+    let m: Vec<u8> = "IOSZJLT".bytes().collect();
     let mut seq = vec![];
-    for i in 0..1000 {
-        let m: Vec<u8> = "IOSZJLT".bytes().collect();
-        let idx = i % 7;
-        seq.push(m[idx]);
+    for _ in 0..10000 {
+        seq.push(*rng.choose(&m).unwrap());
     }
     let mut game = Game::new(seq);
     let display = Display::new();

@@ -5,3 +5,4 @@ authors = ["Mitsuru Kusumoto <kusumoto.mitsuru@gmail.com>"]
 
 [dependencies]
 pancurses = "0.11"
+rand = "0.3"
