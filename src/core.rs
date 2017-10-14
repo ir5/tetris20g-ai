@@ -291,6 +291,7 @@ pub struct Game {
     pub state: CurrentPieceState,
     pub piece_array: Vec<u8>,
     pub current_piece_id: usize,
+    pub charge: i32,
 }
 
 impl Game {
@@ -300,16 +301,31 @@ impl Game {
             state: new_piece(piece_array[0]),
             piece_array,
             current_piece_id: 0,
+            charge: 0,
         }
     }
 
     pub fn input(&mut self, key: char) {
+        let mut dx: i32 = 0;
         let command = match key {
-            'z' => Some(Command::Move(-1, 0)),
+            'z' => {
+                dx = -1;
+                Some(Command::Move(dx as i8, 0))
+            }
             'x' => Some(Command::Fix),
-            'c' => Some(Command::Move(1, 0)),
-            'm' | '.' => Some(Command::Move(0, 1)),
-            ',' => Some(Command::Move(0, -1)),
+            'c' => {
+                dx = 1;
+                Some(Command::Move(dx as i8, 0))
+            }
+            'm' | ',' | '.' => {
+                let rotate = if key == ',' { -1 } else { 1 };
+                let synchro = if self.charge.abs() < 6 {
+                    0
+                } else {
+                    self.charge.signum() as i8
+                };
+                Some(Command::Move(synchro, rotate))
+            }
             _ => None,
         };
 
@@ -317,12 +333,25 @@ impl Game {
             let res = apply_command(&self.field, &self.state, &command);
             match res {
                 CommandResult::Moved(next_state, _) => {
-                    self.state = next_state;
+                    if self.state == next_state {
+                        if self.charge * dx <= 0 {
+                            self.charge = dx;
+                        } else {
+                            self.charge += dx;
+                        }
+                    } else {
+                        self.state = next_state;
+                    }
+
+                    if let Command::Move(0, _) = command {
+                        self.charge = 0;
+                    }
                 }
                 CommandResult::Fixed(next_field, _) => {
                     self.field = next_field;
                     self.state = new_piece(self.next_piece().unwrap());
                     self.current_piece_id += 1;
+                    self.charge = 0;
                 }
                 CommandResult::Ended => {
                     panic!();
