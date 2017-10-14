@@ -326,6 +326,10 @@ impl Game {
                 };
                 Some(Command::Move(synchro, rotate))
             }
+            'r' => {
+                self.state = new_piece(self.state.piece_type);
+                None
+            }
             _ => None,
         };
 
