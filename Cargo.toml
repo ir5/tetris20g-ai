@@ -6,3 +6,6 @@ authors = ["Mitsuru Kusumoto <kusumoto.mitsuru@gmail.com>"]
 [dependencies]
 pancurses = "0.11"
 rand = "0.3"
+serde = "1.0"
+serde_derive = "1.0"
+serde_json = "1.0"
