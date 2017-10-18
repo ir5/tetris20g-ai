@@ -5,15 +5,22 @@ extern crate serde_json;
 extern crate rand;
 extern crate pancurses;
 extern crate getopts;
+extern crate chrono;
 
 mod core;
 mod display;
 mod human_manipulation;
 mod logger;
 
+use chrono::prelude::*;
 use human_manipulation::Game;
 use display::Display;
 use rand::Rng;
+
+fn timestamp() -> String {
+    let local: DateTime<Local> = Local::now();
+    String::from(local.format("%Y%m%d-%H%M%S").to_string())
+}
 
 fn main() {
     let mut opts = getopts::Options::new();
@@ -35,7 +42,8 @@ fn main() {
         for _ in 0..10000 {
             seq.push(*rng.choose(&m).unwrap());
         }
-        let mut game = Game::new(seq, Some("test.txt"));
+        let filename = format!("dataset/{}.txt", timestamp());
+        let mut game = Game::new(seq, Some(&filename));
         for i in 0..initial_lines {
             for j in 0..core::WIDTH {
                 game.field[core::HEIGHT - 1 - i][j] = if rng.gen_range(0, 2) == 0 { b'.' } else { b'X' };
