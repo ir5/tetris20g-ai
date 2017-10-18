@@ -23,11 +23,12 @@ impl Display {
         pancurses::init_color(b'L' as i16, 1000, 700, 300);
         pancurses::init_color(b'J' as i16, 500, 500, 1000);
         pancurses::init_color(b'T' as i16, 300, 900, 900);
+        pancurses::init_color(b'X' as i16, 900, 900, 900);
         pancurses::init_color(1i16, 200, 200, 200);
         pancurses::init_color(2i16, 0, 0, 0);
         pancurses::init_color(3i16, 800, 800, 800);
 
-        for c in "IOSZLJT".bytes() {
+        for c in "IOSZLJTX".bytes() {
             pancurses::init_pair(c as i16, 3, c as i16);
         }
         pancurses::init_pair(b'.' as i16, 2, 1);

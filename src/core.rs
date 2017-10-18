@@ -1,5 +1,5 @@
-const HEIGHT: usize = 20;
-const WIDTH: usize = 10;
+pub const HEIGHT: usize = 20;
+pub const WIDTH: usize = 10;
 
 pub type Field = [[u8; WIDTH]; HEIGHT];
 
