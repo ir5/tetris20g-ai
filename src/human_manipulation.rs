@@ -81,10 +81,10 @@ impl Game {
                         self.charge = 0;
                     }
                 }
-                CommandResult::Fixed(last_state, next_field, _) => {
-                    self.state = last_state;
+                CommandResult::Fixed(info) => {
+                    self.state = info.last_state;
                     self.update_log();
-                    self.field = next_field;
+                    self.field = info.new_field;
                     self.state = new_piece(self.next_piece().unwrap());
                     self.current_piece_id += 1;
                     self.charge = 0;

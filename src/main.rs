@@ -17,7 +17,7 @@ use chrono::prelude::*;
 use human_manipulation::Game;
 use display::Display;
 use rand::Rng;
-use enumeration::enumerate_single;
+use enumeration::enumerate_multi;
 
 fn timestamp() -> String {
     let local: DateTime<Local> = Local::now();
@@ -69,12 +69,13 @@ fn main() {
                 field[core::HEIGHT - 1 - i][j] = if rng.gen_range(0, 2) == 0 { b'.' } else { b'X' };
             }
         }
-        let candidates = enumerate_single(&field, b'S');
+        let candidates = enumerate_multi(&field, &vec![b'L', b'S']);
         let display = Display::new();
         let mut idx = 0;
 
         loop {
-            let state = &candidates[idx];
+            let field = &candidates[idx][1].new_field;
+            let state = core::new_piece(b'O');
             display.draw(&field, &state, None);
             let key = display.wait_key();
             if let Some(_) = key {

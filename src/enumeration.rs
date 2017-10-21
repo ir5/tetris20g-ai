@@ -1,5 +1,5 @@
 use std::collections::{BinaryHeap, BTreeSet};
-use core::{Field, CurrentPieceState, new_piece, Command, CommandResult, apply_command};
+use core::{Field, CurrentPieceState, new_piece, Command, CommandResult, FixedInfo, apply_command};
 
 #[derive(Debug, Eq, PartialEq, PartialOrd, Ord, Clone)]
 struct SearchNode {
@@ -9,16 +9,17 @@ struct SearchNode {
     synchro_move: i8,
 }
 
-pub fn enumerate_single(field: &Field, piece_type: u8) -> Vec<CurrentPieceState> {
+pub fn enumerate_single(field: &Field, piece_type: u8) -> Vec<FixedInfo> {
     let initial_state = new_piece(piece_type);
     let mut queue = BinaryHeap::<SearchNode>::new();
     queue.push(SearchNode {
         neg_cost: 0,
         state: initial_state,
         lock_delay: 0,
-        synchro_move: 0 });
+        synchro_move: 0,
+    });
     let mut visited: BTreeSet<SearchNode> = BTreeSet::new();
-    let mut result: BTreeSet<CurrentPieceState> = BTreeSet::new();
+    let mut result: BTreeSet<FixedInfo> = BTreeSet::new();
 
     while let Some(node) = queue.pop() {
         if visited.contains(&node) {
@@ -48,15 +49,15 @@ pub fn enumerate_single(field: &Field, piece_type: u8) -> Vec<CurrentPieceState>
                             synchro_move = m;
                         }
                     }
-                    queue.push(SearchNode{
+                    queue.push(SearchNode {
                         neg_cost: node.neg_cost - 1,
                         state: next_state,
                         lock_delay: next_lock_delay,
                         synchro_move,
                     });
                 }
-                CommandResult::Fixed(fixed_state, _, _) => {
-                    result.insert(fixed_state.clone());
+                CommandResult::Fixed(info) => {
+                    result.insert(info);
                 }
                 _ => (),
             }
@@ -64,4 +65,31 @@ pub fn enumerate_single(field: &Field, piece_type: u8) -> Vec<CurrentPieceState>
     }
 
     result.into_iter().collect()
+}
+
+pub fn enumerate_multi(field: &Field, piece_types: &Vec<u8>) -> Vec<Vec<FixedInfo>> {
+    fn recurse(
+        field: &Field,
+        idx: usize,
+        parent_trajectory: Vec<FixedInfo>,
+        piece_types: &Vec<u8>,
+        res: &mut Vec<Vec<FixedInfo>>,
+    ) {
+        if idx == piece_types.len() {
+            res.push(parent_trajectory.clone());
+            assert_eq!(piece_types.len(), res[0].len());
+            return;
+        }
+        let candidates = enumerate_single(&field, piece_types[idx]);
+        for candidate in candidates {
+            let mut new_parent = parent_trajectory.clone();
+            new_parent.push(candidate.clone());
+            recurse(&candidate.new_field, idx + 1, new_parent, &piece_types, res);
+        }
+    }
+
+    let mut res: Vec<Vec<FixedInfo>> = vec![];
+    recurse(&field, 0, vec![], &piece_types, &mut res);
+
+    res
 }

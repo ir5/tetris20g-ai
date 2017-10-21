@@ -136,8 +136,15 @@ pub enum Command {
 
 pub enum CommandResult {
     Moved(CurrentPieceState, bool), // (new state, if lock delay is canceled)
-    Fixed(CurrentPieceState, Field, i8), // (last state, new field, deleted lines)
+    Fixed(FixedInfo),
     Ended,
+}
+
+#[derive(Debug, Eq, PartialEq, PartialOrd, Ord, Clone)]
+pub struct FixedInfo {
+    pub last_state: CurrentPieceState,
+    pub new_field: Field,
+    pub del: i8,
 }
 
 pub fn apply_command(field: &Field, state: &CurrentPieceState, command: &Command) -> CommandResult {
@@ -195,7 +202,11 @@ pub fn apply_command(field: &Field, state: &CurrentPieceState, command: &Command
 
     if let &Command::Fix = command {
         let (new_field, del) = fix_piece(&field, &new_state);
-        CommandResult::Fixed(new_state, new_field, del)
+        CommandResult::Fixed(FixedInfo {
+            last_state: new_state,
+            new_field,
+            del,
+        })
     } else {
         CommandResult::Moved(new_state, reset)
     }
