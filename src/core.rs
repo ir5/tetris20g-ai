@@ -120,7 +120,7 @@ pub fn cycle(piece_type: u8) -> usize {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug, Eq, PartialEq, Clone)]
+#[derive(Serialize, Deserialize, Debug, Eq, PartialEq, PartialOrd, Ord, Clone)]
 pub struct CurrentPieceState {
     pub piece_type: u8,
     pub x: i8,
@@ -194,46 +194,7 @@ pub fn apply_command(field: &Field, state: &CurrentPieceState, command: &Command
     new_state.y -= 1;
 
     if let &Command::Fix = command {
-        // fix current piece
-        let mut new_field = field.clone();
-        let sh = shape(new_state.piece_type, new_state.rotation);
-        for (i, &row) in sh.iter().enumerate() {
-            for (j, cell) in row.bytes().enumerate() {
-                if cell == b'.' {
-                    continue;
-                }
-                let y = (new_state.y + (i as i8)) as usize;
-                let x = (new_state.x + (j as i8)) as usize;
-                new_field[y][x] = new_state.piece_type;
-            }
-        }
-
-        // delete lines
-        let mut dels = [false; HEIGHT];
-        let mut del = 0;
-        for i in 0..HEIGHT {
-            let n = new_field[i].iter().fold(0, |sum, &cell| {
-                sum + if cell != b'.' { 1 } else { 0 }
-            });
-            if n == WIDTH {
-                dels[i] = true;
-                del += 1;
-            }
-        }
-        let mut base = HEIGHT - 1;
-        for i in (0..HEIGHT).rev() {
-            if dels[i] {
-                new_field[i] = [b'.'; WIDTH];
-            } else {
-                if i != base {
-                    new_field.swap(i, base);
-                }
-                if base > 0 {
-                    base -= 1;
-                }
-            }
-        }
-
+        let (new_field, del) = fix_piece(&field, &new_state);
         CommandResult::Fixed(new_state, new_field, del)
     } else {
         CommandResult::Moved(new_state, reset)
@@ -274,6 +235,50 @@ fn check_validity(field: &Field, state: &CurrentPieceState) -> ValidityResult {
         }
     }
     ret
+}
+
+pub fn fix_piece(field: &Field, last_state: &CurrentPieceState) -> (Field, i8) {
+    /// fix current piece
+    let mut new_field = field.clone();
+    let sh = shape(last_state.piece_type, last_state.rotation);
+    for (i, &row) in sh.iter().enumerate() {
+        for (j, cell) in row.bytes().enumerate() {
+            if cell == b'.' {
+                continue;
+            }
+            let y = (last_state.y + (i as i8)) as usize;
+            let x = (last_state.x + (j as i8)) as usize;
+            new_field[y][x] = last_state.piece_type;
+        }
+    }
+
+    // delete lines
+    let mut dels = [false; HEIGHT];
+    let mut del = 0;
+    for i in 0..HEIGHT {
+        let n = new_field[i].iter().fold(0, |sum, &cell| {
+            sum + if cell != b'.' { 1 } else { 0 }
+        });
+        if n == WIDTH {
+            dels[i] = true;
+            del += 1;
+        }
+    }
+    let mut base = HEIGHT - 1;
+    for i in (0..HEIGHT).rev() {
+        if dels[i] {
+            new_field[i] = [b'.'; WIDTH];
+        } else {
+            if i != base {
+                new_field.swap(i, base);
+            }
+            if base > 0 {
+                base -= 1;
+            }
+        }
+    }
+
+    (new_field, del)
 }
 
 pub fn new_piece(piece_type: u8) -> CurrentPieceState {

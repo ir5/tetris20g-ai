@@ -11,11 +11,13 @@ mod core;
 mod display;
 mod human_manipulation;
 mod logger;
+mod enumeration;
 
 use chrono::prelude::*;
 use human_manipulation::Game;
 use display::Display;
 use rand::Rng;
+use enumeration::enumerate_single;
 
 fn timestamp() -> String {
     let local: DateTime<Local> = Local::now();
@@ -56,6 +58,30 @@ fn main() {
             let key = display.wait_key();
             if let Some(key) = key {
                 game.input(key);
+            }
+        }
+    }
+    if mode == "search-test" {
+        let mut field = core::EMPTY_FIELD;
+        let mut rng = rand::thread_rng();
+        for i in 0..9 {
+            for j in 0..core::WIDTH {
+                field[core::HEIGHT - 1 - i][j] = if rng.gen_range(0, 2) == 0 { b'.' } else { b'X' };
+            }
+        }
+        let candidates = enumerate_single(&field, b'S');
+        let display = Display::new();
+        let mut idx = 0;
+
+        loop {
+            let state = &candidates[idx];
+            display.draw(&field, &state, None);
+            let key = display.wait_key();
+            if let Some(_) = key {
+                idx += 1;
+                if idx >= candidates.len() {
+                    break;
+                }
             }
         }
     }
