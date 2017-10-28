@@ -257,9 +257,12 @@ pub fn fix_piece(field: &Field, last_state: &CurrentPieceState) -> (Field, i8) {
             if cell == b'.' {
                 continue;
             }
-            let y = (last_state.y + (i as i8)) as usize;
-            let x = (last_state.x + (j as i8)) as usize;
-            new_field[y][x] = last_state.piece_type;
+            let y = last_state.y + (i as i8);
+            let x = last_state.x + (j as i8);
+            if y < 0 {
+                continue;
+            }
+            new_field[y as usize][x as usize] = last_state.piece_type;
         }
     }
 

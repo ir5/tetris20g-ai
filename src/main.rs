@@ -12,12 +12,15 @@ mod display;
 mod human_manipulation;
 mod logger;
 mod enumeration;
+mod regressor;
+mod dataset_generator;
 
 use chrono::prelude::*;
 use human_manipulation::Game;
 use display::Display;
 use rand::Rng;
 use enumeration::enumerate_multi;
+use dataset_generator::generate_dataset;
 
 fn timestamp() -> String {
     let local: DateTime<Local> = Local::now();
@@ -28,61 +31,86 @@ fn main() {
     let mut opts = getopts::Options::new();
     opts.reqopt("", "mode", "mode name", "MODE NAME");
     opts.optopt("", "lines", "initial random lines", "NUM");
+    opts.optopt(
+        "",
+        "filename",
+        "filename for generating training dataset",
+        "FILENAME",
+    );
 
     let args: Vec<String> = std::env::args().collect();
     let matches = match opts.parse(&args[1..]) {
-        Ok(m) => { m }
-        Err(e) => { panic!(e.to_string()) }
+        Ok(m) => m,
+        Err(e) => panic!(e.to_string()),
     };
-    let mode = matches.opt_str("mode").unwrap_or(String::from("annotation"));
-    let initial_lines = matches.opt_str("lines").unwrap_or(String::from("0")).parse::<usize>().unwrap();
+    let mode = matches.opt_str("mode").unwrap();
 
-    if mode == "annotation" {
-        let mut rng = rand::thread_rng();
-        let m: Vec<u8> = "IOSZJLT".bytes().collect();
-        let mut seq = vec![];
-        for _ in 0..10000 {
-            seq.push(*rng.choose(&m).unwrap());
+    match mode.as_str() {
+        "annotation" => {
+            let initial_lines = matches
+                .opt_str("lines")
+                .unwrap_or(String::from("0"))
+                .parse::<usize>()
+                .unwrap();
+            annotation(initial_lines);
         }
-        let filename = format!("dataset/{}.txt", timestamp());
-        let mut game = Game::new(seq, Some(&filename));
-        for i in 0..initial_lines {
-            for j in 0..core::WIDTH {
-                game.field[core::HEIGHT - 1 - i][j] = if rng.gen_range(0, 2) == 0 { b'.' } else { b'X' };
-            }
+        "search-test" => search_test(),
+        "generate-training-dataset" => {
+            let filename = matches.opt_str("filename").unwrap();
+            generate_dataset(&filename, "test.bin");
         }
+        _ => (),
+    };
+}
 
-        let display = Display::new();
-        loop {
-            display.draw(&game.field, &game.state, game.next_piece());
-            let key = display.wait_key();
-            if let Some(key) = key {
-                game.input(key);
-            }
+fn annotation(initial_lines: usize) {
+    let mut rng = rand::thread_rng();
+    let m: Vec<u8> = "IOSZJLT".bytes().collect();
+    let mut seq = vec![];
+    for _ in 0..10000 {
+        seq.push(*rng.choose(&m).unwrap());
+    }
+    let filename = format!("dataset/{}.txt", timestamp());
+    let mut game = Game::new(seq, Some(&filename));
+    for i in 0..initial_lines {
+        for j in 0..core::WIDTH {
+            game.field[core::HEIGHT - 1 - i][j] =
+                if rng.gen_range(0, 2) == 0 { b'.' } else { b'X' };
         }
     }
-    if mode == "search-test" {
-        let mut field = core::EMPTY_FIELD;
-        let mut rng = rand::thread_rng();
-        for i in 0..9 {
-            for j in 0..core::WIDTH {
-                field[core::HEIGHT - 1 - i][j] = if rng.gen_range(0, 2) == 0 { b'.' } else { b'X' };
-            }
-        }
-        let candidates = enumerate_multi(&field, &vec![b'L', b'S']);
-        let display = Display::new();
-        let mut idx = 0;
 
-        loop {
-            let field = &candidates[idx][1].new_field;
-            let state = core::new_piece(b'O');
-            display.draw(&field, &state, None);
-            let key = display.wait_key();
-            if let Some(_) = key {
-                idx += 1;
-                if idx >= candidates.len() {
-                    break;
-                }
+    let display = Display::new();
+    loop {
+        display.draw(&game.field, &game.state, game.next_piece());
+        let key = display.wait_key();
+        if let Some(key) = key {
+            game.input(key);
+        }
+    }
+}
+
+fn search_test() {
+    let mut field = core::EMPTY_FIELD;
+    let mut rng = rand::thread_rng();
+    for i in 0..9 {
+        for j in 0..core::WIDTH {
+            field[core::HEIGHT - 1 - i][j] = if rng.gen_range(0, 2) == 0 { b'.' } else { b'X' };
+        }
+    }
+    let candidates = enumerate_multi(&field, &vec![b'L', b'S']);
+    println!("{}", candidates.len());
+    let display = Display::new();
+    let mut idx = 0;
+
+    loop {
+        let field = &candidates[idx][1].new_field;
+        let state = core::new_piece(b'O');
+        display.draw(&field, &state, None);
+        let key = display.wait_key();
+        if let Some(_) = key {
+            idx += 1;
+            if idx >= candidates.len() {
+                break;
             }
         }
     }

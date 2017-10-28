@@ -40,8 +40,8 @@ pub fn enumerate_single(field: &Field, piece_type: u8) -> Vec<FixedInfo> {
             match apply_command(&field, &node.state, &command) {
                 CommandResult::Moved(next_state, reset) => {
                     let next_lock_delay = if reset { 0 } else { node.lock_delay + 1 };
-                    if next_lock_delay >= 5 {
-                        continue;
+                    if next_lock_delay >= 4 {
+                       continue;
                     }
                     let mut synchro_move = 0;
                     if node.state == next_state {
