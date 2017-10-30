@@ -38,10 +38,13 @@ class LinearRegression(chainer.Chain):
         super(LinearRegression, self).__init__()
         self.dim = dim
         with self.init_scope():
-            self.l = L.Linear(dim, 1)
+            self.l = L.Linear(dim, 1, nobias=True)
 
     def __call__(self, x):
         return self.l(x)
+
+    def dump(self):
+        return ' '.join(np.char.mod('%.14f', self.l.W.data[0]))
 
 
 class RankLoss(chainer.Chain):
@@ -75,12 +78,18 @@ def main():
     parser.add_argument('--dim', type=int, default=8184)
     parser.add_argument('--train', type=str, nargs='+', default=None)
     parser.add_argument('--val', type=str, nargs='+', default=None)
+    parser.add_argument('--dump-from', type=str, default=None)
     args = parser.parse_args()
 
     model = RankLoss(LinearRegression(args.dim))
     if args.gpu >= 0:
         chainer.cuda.get_device_from_id(args.gpu).use()
         model.to_gpu()
+
+    if args.dump_from is not None:
+        chainer.serializers.load_npz(args.dump_from, model.predictor)
+        print(model.predictor.dump())
+        return
 
     optimizer = chainer.optimizers.Adam()
     optimizer.setup(model)
@@ -95,9 +104,12 @@ def main():
         val, args.batchsize, repeat=False, n_processes=args.loaderjob)
 
     updater = training.StandardUpdater(train_iter, optimizer, device=args.gpu)
-    trainer = training.Trainer(updater, (args.epoch, 'epoch'))
+    trainer = training.Trainer(updater, (args.epoch, 'epoch'),
+                               out='results')
     trainer.extend(extensions.Evaluator(val_iter, model, device=args.gpu))
     trainer.extend(extensions.LogReport())
+    trainer.extend(extensions.snapshot_object(
+        model.predictor, filename='model_{.updater.epoch}'))
     trainer.extend(extensions.PrintReport(
         ['epoch', 'main/loss', 'validation/main/loss',
          'main/accuracy', 'validation/main/accuracy',
