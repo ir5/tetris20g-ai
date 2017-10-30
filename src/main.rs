@@ -57,6 +57,9 @@ enum Opt {
 
         #[structopt(long = "drop-rate", default_value = "0")]
         drop_rate: f64,
+
+        #[structopt(long = "weights-file")]
+        weights_file: Option<String>,
     },
 
     #[structopt(name = "check-weights")]
@@ -82,8 +85,9 @@ fn main() {
             input,
             output,
             drop_rate,
+            weights_file,
         } => {
-            generate_dataset(&input, &output, drop_rate);
+            generate_dataset(&input, &output, drop_rate, weights_file);
         }
         Opt::CheckWeights { file } => check_weights(file),
     }

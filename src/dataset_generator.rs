@@ -3,8 +3,10 @@ use std::io::{self, Write};
 use enumeration::enumerate_multi;
 use logger::load_log_file;
 use regressor::extract_feature;
+use regressor::LinearRegressor;
 use core::EMPTY_FIELD;
 use core::fix_piece;
+use core::Field;
 use rand;
 use rand::distributions::{IndependentSample, Range};
 
@@ -19,7 +21,7 @@ fn vecbool_to_vecu8(v: &Vec<bool>) -> Vec<u8> {
     res
 }
 
-pub fn generate_dataset(input: &str, output: &str, drop_rate: f64) {
+pub fn generate_dataset(input: &str, output: &str, drop_rate: f64, weights_file: Option<String>) {
     let mut file = OpenOptions::new()
         .write(true)
         .create(true)
@@ -29,6 +31,11 @@ pub fn generate_dataset(input: &str, output: &str, drop_rate: f64) {
     let log_infos = load_log_file(input);
     let uniform = Range::new(0f64, 1f64);
     let mut rng = rand::thread_rng();
+
+    let mut regressor = LinearRegressor::new();
+    if let Some(ref file) = weights_file {
+        regressor.load(&file);
+    }
 
     let dim = extract_feature(&EMPTY_FIELD).len();
     println!("dimension = {}", dim);
@@ -45,19 +52,31 @@ pub fn generate_dataset(input: &str, output: &str, drop_rate: f64) {
         let current_piece = log_infos[idx].next_piece;
         let next_piece = log_infos[idx + 1].next_piece;
         let (best, _) = fix_piece(&log_infos[idx + 1].field, &log_infos[idx + 1].decided);
-        let candidates = enumerate_multi(&field, &vec![current_piece, next_piece]);
+        let mut candidates = enumerate_multi(&field, &vec![current_piece, next_piece]);
+        candidates.retain(|e| e[0].last_state != log_infos[idx].decided);
+
+        let candidates: Vec<Field> = if let Some(_) = weights_file {
+            // candidates must be sorted by value scores
+            let mut sorted: Vec<(f32, Field)> = candidates
+                .iter()
+                .map(|e| (regressor.predict(&e[1].new_field), e[1].new_field))
+                .collect();
+            sorted.sort_by(|x, y| y.0.partial_cmp(&x.0).unwrap());
+            let mut sorted: Vec<Field> = sorted.iter().map(|e| e.1).collect();
+
+            // the number of elements should be decreased by drop_rate
+            let pos = ((1.0 - drop_rate) * (sorted.len() as f64)) as usize;
+            sorted.split_off(pos);
+            sorted
+        } else {
+            candidates.retain(|_| uniform.ind_sample(&mut rng) > drop_rate);
+            candidates.iter().map(|e| e[1].new_field).collect()
+        };
 
         for candidate in candidates {
-            if uniform.ind_sample(&mut rng) < drop_rate {
-                continue;
-            }
-            if log_infos[idx].decided == candidate[0].last_state {
-                continue;
-            }
-
             let feature0 = extract_feature(&best);
             let feature0 = vecbool_to_vecu8(&feature0);
-            let feature1 = extract_feature(&candidate[1].new_field);
+            let feature1 = extract_feature(&candidate);
             let feature1 = vecbool_to_vecu8(&feature1);
 
             file.write(&feature0).unwrap();
