@@ -1,3 +1,5 @@
+use std::fs::OpenOptions;
+use std::io::Read;
 use core::{HEIGHT, WIDTH, Field, EMPTY_FIELD};
 
 pub fn extract_feature(field: &Field) -> Vec<bool> {
@@ -32,6 +34,16 @@ impl LinearRegressor {
     pub fn new() -> LinearRegressor {
         let dim = extract_feature(&EMPTY_FIELD);
         LinearRegressor { params: vec![0.0; dim.len()] }
+    }
+
+    pub fn load(&mut self, filename: &str) {
+        /// Load space-separated weight file.
+        let mut file = OpenOptions::new().read(true).open(filename).unwrap();
+        let mut all = String::new();
+        file.read_to_string(&mut all).unwrap();
+        self.params = all.split_whitespace()
+            .map(|x| x.parse::<f32>().unwrap())
+            .collect();
     }
 
     pub fn predict(&self, field: &Field) -> f32 {

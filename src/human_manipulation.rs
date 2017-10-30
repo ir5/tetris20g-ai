@@ -104,7 +104,7 @@ impl Game {
             None
         }
     }
-    
+
     pub fn update_log(&mut self) {
         if let Some(ref prev_log_info) = self.prev_log_info {
             if let Some(ref mut logger) = self.logger {

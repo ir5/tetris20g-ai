@@ -34,10 +34,7 @@ impl Logger {
 }
 
 pub fn load_log_file(filename: &str) -> Vec<LogInfo> {
-    let mut file = OpenOptions::new()
-        .read(true)
-        .open(filename)
-        .unwrap();
+    let mut file = OpenOptions::new().read(true).open(filename).unwrap();
     let mut all = String::new();
     file.read_to_string(&mut all).unwrap();
     let mut ret = vec![];
