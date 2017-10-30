@@ -54,7 +54,7 @@ enum Opt {
         #[structopt(long = "output", default_value = "output.bin")]
         output: String,
 
-        #[structopt(long = "drop_rate", default_value = "0")]
+        #[structopt(long = "drop-rate", default_value = "0")]
         drop_rate: f64,
     },
 }
@@ -68,7 +68,7 @@ fn main() {
         }
         Opt::SearchTest {} => search_test(),
         Opt::GenerateDataset { input, output, drop_rate } => {
-            generate_dataset(&input, &output);
+            generate_dataset(&input, &output, drop_rate);
         },
     }
 }
