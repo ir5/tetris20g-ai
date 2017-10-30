@@ -13,12 +13,14 @@ class PreprocessedDataset(chainer.dataset.DatasetMixin):
 
     def __init__(self, filenames, dim):
         self.dim = dim
-        self.per = ((self.dim + 7) // 8) * 8
+        self.per = np.int64(((self.dim + 7) // 8) * 8)
 
         self.data = bitarray()
         for filename in filenames:
             f = open(filename, 'rb')
-            s = bitarray(f.read())
+            s = bitarray(endian='little')
+            s.fromfile(f)
+            assert len(s) % (2 * self.per) == 0
             self.data.extend(s)
 
     def __len__(self):
