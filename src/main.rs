@@ -4,7 +4,10 @@ extern crate serde;
 extern crate serde_json;
 extern crate rand;
 extern crate pancurses;
-extern crate getopts;
+// extern crate getopts;
+extern crate structopt;
+#[macro_use]
+extern crate structopt_derive;
 extern crate chrono;
 
 mod core;
@@ -21,57 +24,74 @@ use display::Display;
 use rand::Rng;
 use enumeration::enumerate_multi;
 use dataset_generator::generate_dataset;
+use structopt::StructOpt;
 
-fn timestamp() -> String {
-    let local: DateTime<Local> = Local::now();
-    String::from(local.format("%Y%m%d-%H%M%S").to_string())
+
+#[derive(StructOpt, Debug)]
+#[structopt(name = "20G")]
+enum Opt {
+    #[structopt(name = "annotation")]
+    Annotation {
+        #[structopt(long = "lines", default_value = "0")]
+        lines: usize,
+
+        #[structopt(long = "save-file")]
+        save_file: Option<String>,
+
+        #[structopt(long = "no-save")]
+        no_save: bool,
+    },
+
+    #[structopt(name = "search-test")]
+    SearchTest {
+    },
+
+    #[structopt(name = "generate-dataset")]
+    GenerateDataset {
+        #[structopt(long = "input")]
+        input: String,
+
+        #[structopt(long = "output", default_value = "output.bin")]
+        output: String,
+
+        #[structopt(long = "drop_rate", default_value = "0")]
+        drop_rate: f64,
+    },
 }
 
 fn main() {
-    let mut opts = getopts::Options::new();
-    opts.reqopt("", "mode", "mode name", "MODE NAME");
-    opts.optopt("", "lines", "initial random lines", "NUM");
-    opts.optopt(
-        "",
-        "filename",
-        "filename for generating training dataset",
-        "FILENAME",
-    );
+    let opt = Opt::from_args();
 
-    let args: Vec<String> = std::env::args().collect();
-    let matches = match opts.parse(&args[1..]) {
-        Ok(m) => m,
-        Err(e) => panic!(e.to_string()),
-    };
-    let mode = matches.opt_str("mode").unwrap();
-
-    match mode.as_str() {
-        "annotation" => {
-            let initial_lines = matches
-                .opt_str("lines")
-                .unwrap_or(String::from("0"))
-                .parse::<usize>()
-                .unwrap();
-            annotation(initial_lines);
+    match opt {
+        Opt::Annotation { lines, save_file, no_save } => {
+            annotation(lines, save_file, no_save);
         }
-        "search-test" => search_test(),
-        "generate-training-dataset" => {
-            let filename = matches.opt_str("filename").unwrap();
-            generate_dataset(&filename, "test.bin");
-        }
-        _ => (),
-    };
+        Opt::SearchTest {} => search_test(),
+        Opt::GenerateDataset { input, output, drop_rate } => {
+            generate_dataset(&input, &output);
+        },
+    }
 }
 
-fn annotation(initial_lines: usize) {
+fn annotation(initial_lines: usize, save_file: Option<String>, no_save: bool) {
     let mut rng = rand::thread_rng();
     let m: Vec<u8> = "IOSZJLT".bytes().collect();
     let mut seq = vec![];
     for _ in 0..10000 {
         seq.push(*rng.choose(&m).unwrap());
     }
-    let filename = format!("dataset/{}.txt", timestamp());
-    let mut game = Game::new(seq, Some(&filename));
+
+    let save_file: Option<String> = if no_save {
+        None
+    } else {
+        if let Some(name) = save_file {
+            Some(name)
+        } else {
+            Some(format!("dataset/{}.txt", timestamp()))
+        }
+    };
+
+    let mut game = Game::new(seq, save_file);
     for i in 0..initial_lines {
         for j in 0..core::WIDTH {
             game.field[core::HEIGHT - 1 - i][j] =
@@ -114,4 +134,9 @@ fn search_test() {
             }
         }
     }
+}
+
+fn timestamp() -> String {
+    let local: DateTime<Local> = Local::now();
+    String::from(local.format("%Y%m%d-%H%M%S").to_string())
 }

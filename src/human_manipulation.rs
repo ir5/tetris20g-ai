@@ -13,10 +13,10 @@ pub struct Game {
 }
 
 impl Game {
-    pub fn new(piece_array: Vec<u8>, filename: Option<&str>) -> Game {
+    pub fn new(piece_array: Vec<u8>, filename: Option<String>) -> Game {
         let mut logger = None;
         if let Some(filename) = filename {
-            logger = Some(Logger::new(filename));
+            logger = Some(Logger::new(&filename));
         }
         Game {
             field: EMPTY_FIELD,
