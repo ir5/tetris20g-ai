@@ -249,7 +249,7 @@ fn check_validity(field: &Field, state: &CurrentPieceState) -> ValidityResult {
 }
 
 pub fn fix_piece(field: &Field, last_state: &CurrentPieceState) -> (Field, i8) {
-    /// fix current piece
+    //! fix current piece
     let mut new_field = field.clone();
     let sh = shape(last_state.piece_type, last_state.rotation);
     for (i, &row) in sh.iter().enumerate() {

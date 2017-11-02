@@ -37,7 +37,7 @@ impl LinearRegressor {
     }
 
     pub fn load(&mut self, filename: &str) {
-        /// Load space-separated weight file.
+        //! Load space-separated weight file.
         let mut file = OpenOptions::new().read(true).open(filename).unwrap();
         let mut all = String::new();
         file.read_to_string(&mut all).unwrap();
