@@ -6,6 +6,7 @@ extern crate serde_json;
 extern crate rand;
 extern crate pancurses;
 
+pub mod agent;
 pub mod core;
 pub mod dataset_generator;
 pub mod display;

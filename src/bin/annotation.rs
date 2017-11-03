@@ -33,7 +33,7 @@ fn main() {
     let seq = utility::generate_pieces(100000, None);
     let save_file: Option<String> = save_file_name(&opt);
     let mut game = Game::new(seq, save_file);
-    utility::fill_field(opt.lines, None, &mut game.field);
+    game.field = utility::filled_field(opt.lines, None);
 
     let display = Display::new();
     loop {
@@ -49,8 +49,8 @@ fn save_file_name(opt: &Opt) -> Option<String> {
     if opt.no_save {
         None
     } else {
-        if let Some(name) = opt.save_file {
-            Some(name)
+        if let Some(ref name) = opt.save_file {
+            Some(name.clone())
         } else {
             Some(format!("dataset/{}.txt", timestamp()))
         }

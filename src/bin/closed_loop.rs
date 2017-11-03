@@ -5,58 +5,58 @@ extern crate structopt_derive;
 
 extern crate tetris20g_ai;
 
-use rand::Rng;
+use std::io::{Write, stdout};
 use structopt::StructOpt;
 
+use tetris20g_ai::agent;
+use tetris20g_ai::agent::Agent;
 use tetris20g_ai::core;
 use tetris20g_ai::display::Display;
-use tetris20g_ai::enumeration::enumerate_multi;
-use tetris20g_ai::regressor::LinearRegressor;
+use tetris20g_ai::utility;
 
 #[derive(StructOpt, Debug)]
 #[structopt(name = "closed_loop", about = "Closed loop execution of learned policy.")]
 struct Opt {
     #[structopt(long = "file", help = "Weights file name.")]
     file: String,
+
+    #[structopt(long = "auto", help = "Automatic execution flag.")]
+    auto: bool,
+
+    #[structopt(long = "trials", default_value = "1",
+    help = "The number of trials to calculate performance statistics.")]
+    trials: u32,
 }
 
 fn main() {
     let opt = Opt::from_args();
 
-    let mut regressor = LinearRegressor::new();
-    regressor.load(&opt.file);
+    let mut agent = agent::TwoStepSearchAgent::new(&opt.file);
 
     let mut field = core::EMPTY_FIELD;
-    let mut rng = rand::thread_rng();
-    let m: Vec<u8> = "IOSZJLT".bytes().collect();
-    let mut seq = vec![];
-    for _ in 0..10000 {
-        seq.push(*rng.choose(&m).unwrap());
-    }
+    let seq = utility::generate_pieces(100000, None);
     let display = Display::new();
 
-    for i in 0..(seq.len() - 1) {
-        let next_piece = seq[i];
-        let next2_piece = seq[i + 1];
-        let candidates = enumerate_multi(&field, &vec![next_piece, next2_piece]);
-        // find maximum value candidate
-        let mut best_value: f32 = -1e10;
-        let mut best = vec![];
-        for candidate in candidates {
-            let value = regressor.predict(&candidate[1].new_field);
-            if value > best_value {
-                best_value = value;
-                best = candidate.clone();
+    for _ in 0..opt.trials {
+        for i in 0.. {
+            let next_piece = seq[i % seq.len()];
+            let next2_piece = seq[(i + 1) % seq.len()];
+            let prediction = agent.predict(&field, next_piece, next2_piece);
+
+            let state = match prediction {
+                None => break,
+                Some(state) => state,
+            };
+
+            print!("\rStep: {}, {}", i, agent.report());
+            stdout().flush().unwrap();
+            if !opt.auto {
+                display.draw(&field, &state, Some(next2_piece));
+                let _ = display.wait_key();
             }
+
+            let (new_field, _) = core::fix_piece(&field, &state);
+            field = new_field.clone();
         }
-        let state = &best[0].last_state;
-
-        println!("Step {} : Value = {}", i, best_value);
-
-        display.draw(&field, &state, Some(next2_piece));
-        let _ = display.wait_key();
-
-        let (new_field, _) = core::fix_piece(&field, &state);
-        field = new_field.clone();
     }
 }
