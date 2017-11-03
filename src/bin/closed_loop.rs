@@ -31,24 +31,29 @@ struct Opt {
 fn main() {
     let opt = Opt::from_args();
 
-    let mut agent = agent::TwoStepSearchAgent::new(&opt.file);
-
-    let mut field = core::EMPTY_FIELD;
-    let seq = utility::generate_pieces(100000, None);
     let display = if opt.auto { None } else { Some(Display::new()) };
+    let mut scores = vec![];
 
     for episode in 1..(1 + opt.episodes) {
-        for i in 0.. {
-            let next_piece = seq[i % seq.len()];
-            let next2_piece = seq[(i + 1) % seq.len()];
+        let mut agent = agent::TwoStepSearchAgent::new(&opt.file);
+
+        let mut field = core::EMPTY_FIELD;
+        let seq = utility::generate_pieces(100000, Some(episode));
+
+        for step in 0.. {
+            let next_piece = seq[step % seq.len()];
+            let next2_piece = seq[(step + 1) % seq.len()];
             let prediction = agent.predict(&field, next_piece, next2_piece);
 
             let state = match prediction {
-                None => break,
+                None => {
+                    scores.push(step as f64);
+                    break
+                },
                 Some(state) => state,
             };
 
-            print!("\rEpisode: {}, Step: {}, {}", episode, i, agent.report());
+            print!("\rEpisode: {}, Step: {}, {}", episode, step, agent.report());
             stdout().flush().unwrap();
             if let Some(ref display) = display {
                 display.draw(&field, &state, Some(next2_piece));
@@ -58,5 +63,9 @@ fn main() {
             let (new_field, _) = core::fix_piece(&field, &state);
             field = new_field.clone();
         }
+        println!();
     }
+
+    let (average, stdev) = utility::statistics(&scores);
+    println!("Average: {}, Stdev: {}", average, stdev);
 }
