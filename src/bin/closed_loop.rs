@@ -23,9 +23,9 @@ struct Opt {
     #[structopt(long = "auto", help = "Automatic execution flag.")]
     auto: bool,
 
-    #[structopt(long = "trials", default_value = "1",
-    help = "The number of trials to calculate performance statistics.")]
-    trials: u32,
+    #[structopt(long = "episodes", default_value = "1",
+    help = "The number of episodes to calculate performance statistics.")]
+    episodes: u32,
 }
 
 fn main() {
@@ -35,9 +35,9 @@ fn main() {
 
     let mut field = core::EMPTY_FIELD;
     let seq = utility::generate_pieces(100000, None);
-    let display = Display::new();
+    let display = if opt.auto { None } else { Some(Display::new()) };
 
-    for _ in 0..opt.trials {
+    for episode in 1..(1 + opt.episodes) {
         for i in 0.. {
             let next_piece = seq[i % seq.len()];
             let next2_piece = seq[(i + 1) % seq.len()];
@@ -48,9 +48,9 @@ fn main() {
                 Some(state) => state,
             };
 
-            print!("\rStep: {}, {}", i, agent.report());
+            print!("\rEpisode: {}, Step: {}, {}", episode, i, agent.report());
             stdout().flush().unwrap();
-            if !opt.auto {
+            if let Some(ref display) = display {
                 display.draw(&field, &state, Some(next2_piece));
                 let _ = display.wait_key();
             }
