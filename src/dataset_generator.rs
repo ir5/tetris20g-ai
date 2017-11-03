@@ -30,7 +30,8 @@ fn vecbool_to_vecu8(v: &Vec<bool>) -> Vec<u8> {
 /// * output: Output binary file name.
 /// * drop_rate: Rate for drop. This should be between 0.0 and 1.0.
 /// * weights_file: If None, drop is uniformly done for all candidates at random. Otherwise,
-/// weights file is loaded and bottom `drop_rate` of candidates in terms of value scores are dropped.
+/// weights file is loaded and bottom `drop_rate` of candidates in terms of value scores are
+/// dropped.
 pub fn generate_dataset(input: &str, output: &str, drop_rate: f64, weights_file: Option<String>) {
     let mut file = OpenOptions::new()
         .write(true)

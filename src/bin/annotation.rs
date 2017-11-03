@@ -18,7 +18,7 @@ use tetris20g_ai::human_manipulation::Game;
 #[structopt(name = "annotation", about = "Create annotation data from human play.")]
 struct Opt {
     #[structopt(long = "lines", default_value = "0",
-    help = "The number of lines initially filled.")]
+                help = "The number of lines initially filled.")]
     lines: usize,
 
     #[structopt(long = "save-file", help = "File name for saving annotation log data.")]
