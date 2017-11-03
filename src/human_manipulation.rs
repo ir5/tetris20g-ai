@@ -1,9 +1,9 @@
-use core::{Field, CurrentPieceState, EMPTY_FIELD, Command, new_piece, apply_command, CommandResult};
+use core::{Field, PieceState, EMPTY_FIELD, Command, new_piece, apply_command, CommandResult};
 use logger::{Logger, LogInfo};
 
 pub struct Game {
     pub field: Field,
-    pub state: CurrentPieceState,
+    pub state: PieceState,
     pub piece_array: Vec<u8>,
     pub current_piece_id: usize,
     pub charge: i32,

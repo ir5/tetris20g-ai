@@ -1,12 +1,12 @@
 use std::fs::{File, OpenOptions};
 use std::io::{Read, Write};
-use core::{Field, CurrentPieceState};
+use core::{Field, PieceState};
 use serde_json;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct LogInfo {
     pub field: Field,
-    pub decided: CurrentPieceState,
+    pub decided: PieceState,
     pub next_piece: u8,
     pub step: i32,
 }

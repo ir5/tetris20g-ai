@@ -1,7 +1,7 @@
 extern crate pancurses;
 
 use core;
-use core::{Field, CurrentPieceState};
+use core::{Field, PieceState};
 
 pub struct Display {
     window: pancurses::Window,
@@ -36,7 +36,7 @@ impl Display {
         Display { window }
     }
 
-    pub fn draw(&self, field: &Field, state: &CurrentPieceState, next_piece_type: Option<u8>) {
+    pub fn draw(&self, field: &Field, state: &PieceState, next_piece_type: Option<u8>) {
         self.window.erase();
         let offset = 5;
         // draw field

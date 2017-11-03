@@ -121,7 +121,7 @@ pub fn cycle(piece_type: u8) -> usize {
 }
 
 #[derive(Serialize, Deserialize, Debug, Eq, PartialEq, PartialOrd, Ord, Clone)]
-pub struct CurrentPieceState {
+pub struct PieceState {
     pub piece_type: u8,
     pub x: i8,
     pub y: i8,
@@ -135,19 +135,19 @@ pub enum Command {
 }
 
 pub enum CommandResult {
-    Moved(CurrentPieceState, bool), // (new state, if lock delay is canceled)
+    Moved(PieceState, bool), // (new state, if lock delay is canceled)
     Fixed(FixedInfo),
     Ended,
 }
 
 #[derive(Debug, Eq, PartialEq, PartialOrd, Ord, Clone)]
 pub struct FixedInfo {
-    pub last_state: CurrentPieceState,
+    pub last_state: PieceState,
     pub new_field: Field,
     pub del: i8,
 }
 
-pub fn apply_command(field: &Field, state: &CurrentPieceState, command: &Command) -> CommandResult {
+pub fn apply_command(field: &Field, state: &PieceState, command: &Command) -> CommandResult {
     // TODO
     let piece_cycle = cycle(state.piece_type);
     let mut new_state = state.clone();
@@ -217,7 +217,7 @@ enum ValidityResult {
     Invalid(bool), // if further wall kick is possible
 }
 
-fn check_validity(field: &Field, state: &CurrentPieceState) -> ValidityResult {
+fn check_validity(field: &Field, state: &PieceState) -> ValidityResult {
     let mut ret = ValidityResult::Valid;
     let sh = shape(state.piece_type, state.rotation);
     for (i, &row) in sh.iter().enumerate() {
@@ -248,7 +248,7 @@ fn check_validity(field: &Field, state: &CurrentPieceState) -> ValidityResult {
     ret
 }
 
-pub fn fix_piece(field: &Field, last_state: &CurrentPieceState) -> (Field, i8) {
+pub fn fix_piece(field: &Field, last_state: &PieceState) -> (Field, i8) {
     //! fix current piece
     let mut new_field = field.clone();
     let sh = shape(last_state.piece_type, last_state.rotation);
@@ -295,8 +295,8 @@ pub fn fix_piece(field: &Field, last_state: &CurrentPieceState) -> (Field, i8) {
     (new_field, del)
 }
 
-pub fn new_piece(piece_type: u8) -> CurrentPieceState {
-    CurrentPieceState {
+pub fn new_piece(piece_type: u8) -> PieceState {
+    PieceState {
         piece_type: piece_type,
         x: 3,
         y: -(y_offset(piece_type) as i8),

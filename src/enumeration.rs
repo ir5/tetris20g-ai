@@ -1,10 +1,10 @@
 use std::collections::{BinaryHeap, BTreeSet};
-use core::{Field, CurrentPieceState, new_piece, Command, CommandResult, FixedInfo, apply_command};
+use core::{Field, PieceState, new_piece, Command, CommandResult, FixedInfo, apply_command};
 
 #[derive(Debug, Eq, PartialEq, PartialOrd, Ord, Clone)]
 struct SearchNode {
     neg_cost: i32,
-    state: CurrentPieceState,
+    state: PieceState,
     lock_delay: i8,
     synchro_move: i8,
 }
