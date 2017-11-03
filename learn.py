@@ -78,6 +78,8 @@ def main():
     parser.add_argument('--gpu', type=int, default=-1)
     parser.add_argument('--loaderjob', '-j', type=int, default=1)
     parser.add_argument('--dim', type=int, default=8184)
+    parser.add_argument('--lr', type=float, default=1e-3)
+    parser.add_argument('--weight-decay', type=float, default=0)
     parser.add_argument('--train', type=str, nargs='+', default=None)
     parser.add_argument('--val', type=str, nargs='+', default=None)
     parser.add_argument('--dump-from', type=str, default=None)
@@ -93,8 +95,9 @@ def main():
         print(model.predictor.dump())
         return
 
-    optimizer = chainer.optimizers.Adam()
+    optimizer = chainer.optimizers.Adam(alpha=args.lr)
     optimizer.setup(model)
+    optimizer.add_hook(chainer.optimizer.WeightDecay(args.weight_decay))
 
     train = PreprocessedDataset(args.train, args.dim)
     val = PreprocessedDataset(args.val, args.dim)
