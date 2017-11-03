@@ -26,8 +26,7 @@ pub fn fill_field(lines: usize, seed: Option<u32>, field: &mut core::Field) {
 
     for i in 0..lines {
         for j in 0..core::WIDTH {
-            field[core::HEIGHT - 1 - i][j] =
-                if rng.gen_range(0, 2) == 0 { b'.' } else { b'X' };
+            field[core::HEIGHT - 1 - i][j] = if rng.gen_range(0, 2) == 0 { b'.' } else { b'X' };
         }
     }
 }
