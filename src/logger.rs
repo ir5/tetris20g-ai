@@ -1,8 +1,10 @@
+//! Module for saving and loading annotated data.
 use std::fs::{File, OpenOptions};
 use std::io::{Read, Write};
 use core::{Field, PieceState};
 use serde_json;
 
+/// A single log data.
 #[derive(Serialize, Deserialize, Debug)]
 pub struct LogInfo {
     pub field: Field,
@@ -11,6 +13,7 @@ pub struct LogInfo {
     pub step: i32,
 }
 
+/// A struct for saving log files.
 pub struct Logger {
     file: File,
 }
@@ -33,6 +36,7 @@ impl Logger {
     }
 }
 
+/// Loads log information.
 pub fn load_log_file(filename: &str) -> Vec<LogInfo> {
     let mut file = OpenOptions::new().read(true).open(filename).unwrap();
     let mut all = String::new();

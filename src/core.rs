@@ -1,10 +1,17 @@
+//! Core environment for 20G tetris.
+
+/// The height of a field.
 pub const HEIGHT: usize = 20;
+/// The width of a field.
 pub const WIDTH: usize = 10;
 
+/// The type of a field. It is a two-dimensional array with `u8` elements.
 pub type Field = [[u8; WIDTH]; HEIGHT];
 
+/// Initial field object.
 pub const EMPTY_FIELD: Field = [[b'.'; WIDTH]; HEIGHT];
 
+/// Returns a rotation shape of a given piece with given rotation cycle.
 #[cfg_attr(rustfmt, rustfmt_skip)]
 pub fn shape(piece_type: u8, rotation: usize) -> [&'static str; 4] {
     match (piece_type, rotation) {
@@ -94,6 +101,7 @@ pub fn shape(piece_type: u8, rotation: usize) -> [&'static str; 4] {
     }
 }
 
+/// Returns vertical offset of a given piece type when it appears from top.
 pub fn y_offset(piece_type: u8) -> usize {
     match piece_type {
         b'I' => 1,
@@ -107,6 +115,7 @@ pub fn y_offset(piece_type: u8) -> usize {
     }
 }
 
+/// Returns a rotation cycle of a given piece type.
 pub fn cycle(piece_type: u8) -> usize {
     match piece_type {
         b'I' => 2,
@@ -120,6 +129,7 @@ pub fn cycle(piece_type: u8) -> usize {
     }
 }
 
+/// The state of a piece we are currently manipulating.
 #[derive(Serialize, Deserialize, Debug, Eq, PartialEq, PartialOrd, Ord, Clone)]
 pub struct PieceState {
     pub piece_type: u8,
@@ -129,17 +139,20 @@ pub struct PieceState {
     pub first: bool,
 }
 
+/// Command input for manipulation of a piece.
 pub enum Command {
     Move(i8, i8), // (dx, rotate)
     Fix,
 }
 
+/// Feed-back from one command input.
 pub enum CommandResult {
     Moved(PieceState, bool), // (new state, if lock delay is canceled)
     Fixed(FixedInfo),
     Ended,
 }
 
+/// Information obtained when we fix a piece.
 #[derive(Debug, Eq, PartialEq, PartialOrd, Ord, Clone)]
 pub struct FixedInfo {
     pub last_state: PieceState,
@@ -147,8 +160,8 @@ pub struct FixedInfo {
     pub del: i8,
 }
 
+/// Apply one command to a current piece.
 pub fn apply_command(field: &Field, state: &PieceState, command: &Command) -> CommandResult {
-    // TODO
     let piece_cycle = cycle(state.piece_type);
     let mut new_state = state.clone();
     if state.first {
@@ -212,11 +225,13 @@ pub fn apply_command(field: &Field, state: &PieceState, command: &Command) -> Co
     }
 }
 
+/// A return type of `check_validity` function.
 enum ValidityResult {
     Valid,
-    Invalid(bool), // if further wall kick is possible
+    Invalid(bool), // This is true if further wall kick is possible.
 }
 
+/// Checks if current state is valid for a field.
 fn check_validity(field: &Field, state: &PieceState) -> ValidityResult {
     let mut ret = ValidityResult::Valid;
     let sh = shape(state.piece_type, state.rotation);
@@ -248,8 +263,10 @@ fn check_validity(field: &Field, state: &PieceState) -> ValidityResult {
     ret
 }
 
+/// Returns the result of fixing a piece.
+/// Return type consists of two values. First one is a resulting field.
+/// Second one is the number of lines deleted.
 pub fn fix_piece(field: &Field, last_state: &PieceState) -> (Field, i8) {
-    //! fix current piece
     let mut new_field = field.clone();
     let sh = shape(last_state.piece_type, last_state.rotation);
     for (i, &row) in sh.iter().enumerate() {
@@ -295,6 +312,7 @@ pub fn fix_piece(field: &Field, last_state: &PieceState) -> (Field, i8) {
     (new_field, del)
 }
 
+/// Generates new piece.
 pub fn new_piece(piece_type: u8) -> PieceState {
     PieceState {
         piece_type: piece_type,

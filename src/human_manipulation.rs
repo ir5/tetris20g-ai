@@ -1,3 +1,4 @@
+//! Module for maintaining current game state. This will be used for annotation purpose.
 use core::{Field, PieceState, EMPTY_FIELD, Command, new_piece, apply_command, CommandResult};
 use logger::{Logger, LogInfo};
 

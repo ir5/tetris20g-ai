@@ -1,3 +1,5 @@
+//! Module for displaying a current field, state, and other information
+//! in CUI interface.
 extern crate pancurses;
 
 use core;

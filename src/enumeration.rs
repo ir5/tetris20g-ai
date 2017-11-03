@@ -1,3 +1,4 @@
+//! Module for enumerating possible moves.
 use std::collections::{BinaryHeap, BTreeSet};
 use core::{Field, PieceState, new_piece, Command, CommandResult, FixedInfo, apply_command};
 
@@ -9,6 +10,7 @@ struct SearchNode {
     synchro_move: i8,
 }
 
+/// Enumerates possible moves in a single step.
 pub fn enumerate_single(field: &Field, piece_type: u8) -> Vec<FixedInfo> {
     let initial_state = new_piece(piece_type);
     let mut queue = BinaryHeap::<SearchNode>::new();
@@ -67,6 +69,7 @@ pub fn enumerate_single(field: &Field, piece_type: u8) -> Vec<FixedInfo> {
     result.into_iter().collect()
 }
 
+/// Enumerates possible moves in multiple steps.
 pub fn enumerate_multi(field: &Field, piece_types: &Vec<u8>) -> Vec<Vec<FixedInfo>> {
     fn recurse(
         field: &Field,

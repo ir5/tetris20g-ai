@@ -1,3 +1,5 @@
+//! Module for generating a dataset for optimizing policy parameters.
+
 use std::fs::OpenOptions;
 use std::io::{self, Write};
 use enumeration::enumerate_multi;
@@ -21,6 +23,14 @@ fn vecbool_to_vecu8(v: &Vec<bool>) -> Vec<u8> {
     res
 }
 
+/// Output a dataset file for a given log file.
+/// Because the number of data can be huge, we can drop some of data specifying `drop_rate`.
+/// ### Args:
+/// * input: Input log file name. (e.g., `dataset/20171101-000000.txt`)
+/// * output: Output binary file name.
+/// * drop_rate: Rate for drop. This should be between 0.0 and 1.0.
+/// * weights_file: If None, drop is uniformly done for all candidates at random. Otherwise,
+/// weights file is loaded and bottom `drop_rate` of candidates in terms of value scores are dropped.
 pub fn generate_dataset(input: &str, output: &str, drop_rate: f64, weights_file: Option<String>) {
     let mut file = OpenOptions::new()
         .write(true)

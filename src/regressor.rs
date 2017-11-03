@@ -1,7 +1,10 @@
+//! Module for defining learning models.
+
 use std::fs::OpenOptions;
 use std::io::Read;
 use core::{HEIGHT, WIDTH, Field, EMPTY_FIELD};
 
+/// Extracts feature vector for a given field.
 pub fn extract_feature(field: &Field) -> Vec<bool> {
     let mut res = vec![];
     for ai in 0..HEIGHT {
@@ -26,6 +29,7 @@ pub fn extract_feature(field: &Field) -> Vec<bool> {
     res
 }
 
+/// Linear regression model.
 pub struct LinearRegressor {
     params: Vec<f32>,
 }

@@ -14,9 +14,9 @@ use tetris20g_ai::enumeration::enumerate_multi;
 use tetris20g_ai::regressor::LinearRegressor;
 
 #[derive(StructOpt, Debug)]
-#[structopt(name = "20G")]
+#[structopt(name = "weights_test", about = "Check if learned weights are appropriate.")]
 struct Opt {
-    #[structopt(long = "file")]
+    #[structopt(long = "file", help = "Weights file name.")]
     file: String,
 }
 

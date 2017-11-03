@@ -1,4 +1,4 @@
-//!
+//! Implementation for creation of 20G tetris AI.
 #[macro_use]
 extern crate serde_derive;
 extern crate serde;

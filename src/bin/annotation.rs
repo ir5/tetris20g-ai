@@ -15,15 +15,16 @@ use tetris20g_ai::display::Display;
 use tetris20g_ai::human_manipulation::Game;
 
 #[derive(StructOpt, Debug)]
-#[structopt(name = "20G")]
+#[structopt(name = "annotation", about = "Create annotation data from human play.")]
 struct Opt {
-    #[structopt(long = "lines", default_value = "0")]
+    #[structopt(long = "lines", default_value = "0",
+    help = "The number of lines initially filled.")]
     lines: usize,
 
-    #[structopt(long = "save-file")]
+    #[structopt(long = "save-file", help = "File name for saving annotation log data.")]
     save_file: Option<String>,
 
-    #[structopt(long = "no-save")]
+    #[structopt(long = "no-save", help = "The program will not save log data if true.")]
     no_save: bool,
 }
 
