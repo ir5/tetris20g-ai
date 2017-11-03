@@ -7,12 +7,11 @@ extern crate structopt_derive;
 extern crate tetris20g_ai;
 
 use chrono::prelude::*;
-use rand::Rng;
 use structopt::StructOpt;
 
-use tetris20g_ai::core;
 use tetris20g_ai::display::Display;
 use tetris20g_ai::human_manipulation::Game;
+use tetris20g_ai::utility;
 
 #[derive(StructOpt, Debug)]
 #[structopt(name = "annotation", about = "Create annotation data from human play.")]
@@ -31,30 +30,10 @@ struct Opt {
 fn main() {
     let opt = Opt::from_args();
 
-    let mut rng = rand::thread_rng();
-    let m: Vec<u8> = "IOSZJLT".bytes().collect();
-    let mut seq = vec![];
-    for _ in 0..10000 {
-        seq.push(*rng.choose(&m).unwrap());
-    }
-
-    let save_file: Option<String> = if opt.no_save {
-        None
-    } else {
-        if let Some(name) = opt.save_file {
-            Some(name)
-        } else {
-            Some(format!("dataset/{}.txt", timestamp()))
-        }
-    };
-
+    let seq = utility::generate_pieces(100000, None);
+    let save_file: Option<String> = save_file_name(&opt);
     let mut game = Game::new(seq, save_file);
-    for i in 0..opt.lines {
-        for j in 0..core::WIDTH {
-            game.field[core::HEIGHT - 1 - i][j] =
-                if rng.gen_range(0, 2) == 0 { b'.' } else { b'X' };
-        }
-    }
+    utility::fill_field(opt.lines, None, &mut game.field);
 
     let display = Display::new();
     loop {
@@ -62,6 +41,18 @@ fn main() {
         let key = display.wait_key();
         if let Some(key) = key {
             game.input(key);
+        }
+    }
+}
+
+fn save_file_name(opt: &Opt) -> Option<String> {
+    if opt.no_save {
+        None
+    } else {
+        if let Some(name) = opt.save_file {
+            Some(name)
+        } else {
+            Some(format!("dataset/{}.txt", timestamp()))
         }
     }
 }
