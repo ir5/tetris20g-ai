@@ -140,6 +140,7 @@ pub struct PieceState {
 }
 
 /// Command input for manipulation of a piece.
+#[derive(Debug)]
 pub enum Command {
     Move(i8, i8), // (dx, rotate)
     Fix,
