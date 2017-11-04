@@ -130,7 +130,7 @@ pub fn cycle(piece_type: u8) -> usize {
 }
 
 /// The state of a piece we are currently manipulating.
-#[derive(Serialize, Deserialize, Debug, Eq, PartialEq, PartialOrd, Ord, Clone)]
+#[derive(Serialize, Deserialize, Debug, Eq, PartialEq, PartialOrd, Ord, Clone, Hash)]
 pub struct PieceState {
     pub piece_type: u8,
     pub x: i8,
@@ -153,7 +153,7 @@ pub enum CommandResult {
 }
 
 /// Information obtained when we fix a piece.
-#[derive(Debug, Eq, PartialEq, PartialOrd, Ord, Clone)]
+#[derive(Debug, Eq, PartialEq, PartialOrd, Ord, Clone, Hash)]
 pub struct FixedInfo {
     pub last_state: PieceState,
     pub new_field: Field,

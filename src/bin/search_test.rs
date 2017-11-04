@@ -9,7 +9,8 @@ use tetris20g_ai::utility;
 
 fn main() {
     let field = utility::filled_field(9, None);
-    let candidates = enumerate_multi(&field, &vec![b'L', b'S']);
+    let mut candidates = enumerate_multi(&field, &vec![b'L', b'S']);
+    candidates.sort();
     println!("{}", candidates.len());
     let display = Display::new();
     let mut idx = 0;

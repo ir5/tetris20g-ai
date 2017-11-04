@@ -1,8 +1,8 @@
 //! Module for enumerating possible moves.
-use std::collections::{BinaryHeap, BTreeSet};
+use std::collections::{BinaryHeap, HashSet};
 use core::{Field, PieceState, new_piece, Command, CommandResult, FixedInfo, apply_command};
 
-#[derive(Debug, Eq, PartialEq, PartialOrd, Ord, Clone)]
+#[derive(Debug, Eq, PartialEq, PartialOrd, Ord, Clone, Hash)]
 struct SearchNode {
     neg_cost: i32,
     state: PieceState,
@@ -20,8 +20,8 @@ pub fn enumerate_single(field: &Field, piece_type: u8) -> Vec<FixedInfo> {
         lock_delay: 0,
         synchro_move: 0,
     });
-    let mut visited: BTreeSet<SearchNode> = BTreeSet::new();
-    let mut result: BTreeSet<FixedInfo> = BTreeSet::new();
+    let mut visited: HashSet<SearchNode> = HashSet::new();
+    let mut result: HashSet<FixedInfo> = HashSet::new();
 
     while let Some(node) = queue.pop() {
         if visited.contains(&node) {
@@ -51,12 +51,16 @@ pub fn enumerate_single(field: &Field, piece_type: u8) -> Vec<FixedInfo> {
                             synchro_move = m;
                         }
                     }
-                    queue.push(SearchNode {
+                    let new_node = SearchNode {
                         neg_cost: node.neg_cost - 1,
                         state: next_state,
                         lock_delay: next_lock_delay,
                         synchro_move,
-                    });
+                    };
+                    if visited.contains(&new_node) {
+                        continue;
+                    }
+                    queue.push(new_node);
                 }
                 CommandResult::Fixed(info) => {
                     result.insert(info);
