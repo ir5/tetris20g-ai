@@ -1,4 +1,3 @@
-extern crate pancurses;
 extern crate rand;
 extern crate structopt;
 #[macro_use]
@@ -6,8 +5,6 @@ extern crate structopt_derive;
 
 extern crate tetris20g_ai;
 
-use std::time;
-use std::thread::sleep;
 use structopt::StructOpt;
 
 use tetris20g_ai::agent;
@@ -54,9 +51,7 @@ fn main() {
             let mut state = core::new_piece(next_piece);
             for command in seq {
                 display.draw(&field, &state, Some(next2_piece));
-                let _ = display.wait_key();
-                // pancurses::half_delay(2);
-                // sleep(time::Duration::from_millis(10000));
+                display.napms(50);
 
                 match core::apply_command(&field, &state, &command) {
                     core::CommandResult::Moved(new_state, _) => {
@@ -68,6 +63,7 @@ fn main() {
                     _ => (),
                 }
             }
+            display.napms(100);
         }
     }
 }
