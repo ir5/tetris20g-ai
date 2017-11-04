@@ -323,3 +323,28 @@ pub fn new_piece(piece_type: u8) -> PieceState {
         first: true,
     }
 }
+
+/// Score information
+pub struct ScoreInfo {
+    pub del_counts: [usize; 4],
+    pub total_lines: usize,
+    pub steps: usize,
+}
+
+impl ScoreInfo {
+    pub fn new() -> ScoreInfo {
+        ScoreInfo {
+            del_counts: [0; 4],
+            total_lines: 0,
+            steps: 0,
+        }
+    }
+
+    pub fn update(&mut self, del: i8) {
+        if del > 0 {
+            self.del_counts[(del - 1) as usize] += 1;
+        }
+        self.total_lines += del as usize;
+        self.steps += 1;
+    }
+}

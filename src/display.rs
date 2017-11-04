@@ -37,12 +37,16 @@ impl Display {
             pancurses::init_pair(c as i16, 3, c as i16);
         }
         pancurses::init_pair(b'.' as i16, 2, 1);
+        pancurses::init_pair(b'{' as i16, 3, 1);
 
         Display { window }
     }
 
-    pub fn draw(&self, field: &Field, state: &PieceState, next_piece_type: Option<u8>) {
+    pub fn erase(&self) {
         self.window.erase();
+    }
+
+    pub fn draw_field(&self, field: &Field, state: &PieceState, next_piece_type: Option<u8>) {
         let offset = 5;
         // draw field
         for (i, &row) in field.iter().enumerate() {
@@ -86,8 +90,35 @@ impl Display {
                 }
             }
         }
+    }
+
+    pub fn refresh(&self) {
         // refresh the window
         self.window.refresh();
+    }
+
+    pub fn draw_score_info(&self, score_info: &core::ScoreInfo) {
+        self.window.attrset(
+            pancurses::COLOR_PAIR(b'{' as u64),
+        );
+        let ix = (core::WIDTH + 2) as i32;
+        for i in 0..4 {
+            self.window.mv((8 + i) as i32, ix);
+            let text = [
+                "Single line:  ",
+                "Double lines: ",
+                "Three lines:  ",
+                "Four lines:   ",
+            ][i];
+            self.window.addstr(format!("{}{:4}", text, score_info.del_counts[i]).as_str());
+        }
+        self.window.mv(12, ix);
+        self.window.addstr("==================");
+        self.window.mv(13, ix);
+        self.window.addstr(format!("Total lines:  {:4}", score_info.total_lines).as_str());
+
+        self.window.mv(16, ix);
+        self.window.addstr(format!("Steps: {:4}", score_info.steps).as_str());
     }
 
     pub fn wait_key(&self) -> Option<char> {

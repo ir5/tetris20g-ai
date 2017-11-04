@@ -36,6 +36,7 @@ fn main() {
 
         let mut field = utility::filled_field(opt.lines, None);
         let seq = utility::generate_pieces(100000, None);
+        let mut score_info = core::ScoreInfo::new();
 
         for step in 0.. {
             let next_piece = seq[step % seq.len()];
@@ -50,7 +51,10 @@ fn main() {
             let seq = find_command_sequence(&field, next_piece, &dest_state);
             let mut state = core::new_piece(next_piece);
             for command in seq {
-                display.draw(&field, &state, Some(next2_piece));
+                display.erase();
+                display.draw_field(&field, &state, Some(next2_piece));
+                display.draw_score_info(&score_info);
+                display.refresh();
                 display.napms(50);
 
                 match core::apply_command(&field, &state, &command) {
@@ -59,6 +63,7 @@ fn main() {
                     }
                     core::CommandResult::Fixed(info) => {
                         field = info.new_field.clone();
+                        score_info.update(info.del);
                     }
                     _ => (),
                 }

@@ -18,7 +18,9 @@ fn main() {
     loop {
         let field = &candidates[idx][1].new_field;
         let state = core::new_piece(b'O');
-        display.draw(&field, &state, None);
+        display.erase();
+        display.draw_field(&field, &state, None);
+        display.refresh();
         let key = display.wait_key();
         if let Some(_) = key {
             idx += 1;

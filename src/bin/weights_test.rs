@@ -37,7 +37,9 @@ fn main() {
 
     for (value, field) in sorted {
         let state = core::new_piece(b'O');
-        display.draw(&field, &state, None);
+        display.erase();
+        display.draw_field(&field, &state, None);
+        display.refresh();
 
         println!("Value = {}", value);
 

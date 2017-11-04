@@ -37,7 +37,9 @@ fn main() {
 
     let display = Display::new();
     loop {
-        display.draw(&game.field, &game.state, game.next_piece());
+        display.erase();
+        display.draw_field(&game.field, &game.state, game.next_piece());
+        display.refresh();
         let key = display.wait_key();
         if let Some(key) = key {
             game.input(key);

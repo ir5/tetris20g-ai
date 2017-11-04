@@ -56,7 +56,9 @@ fn main() {
             print!("\rEpisode: {}, Step: {}, {}", episode, step, agent.report());
             stdout().flush().unwrap();
             if let Some(ref display) = display {
-                display.draw(&field, &state, Some(next2_piece));
+                display.erase();
+                display.draw_field(&field, &state, Some(next2_piece));
+                display.refresh();
                 let _ = display.wait_key();
             }
 
