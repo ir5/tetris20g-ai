@@ -23,6 +23,10 @@ struct Opt {
     #[structopt(long = "file", default_value = "weights__1.txt",
     help = "Weights file name.")]
     file: String,
+
+    #[structopt(long = "lines", default_value = "8",
+    help = "The number of lines initially filled at random.")]
+    lines: usize,
 }
 
 fn main() {
@@ -33,7 +37,7 @@ fn main() {
     loop {
         let mut agent = agent::TwoStepSearchAgent::new(&opt.file);
 
-        let mut field = core::EMPTY_FIELD;
+        let mut field = utility::filled_field(opt.lines, None);
         let seq = utility::generate_pieces(100000, None);
 
         for step in 0.. {
