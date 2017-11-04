@@ -13,7 +13,10 @@ impl Display {
     pub fn new() -> Display {
         let window = pancurses::initscr();
         window.keypad(true);
+
+        #[cfg(windows)]
         pancurses::resize_term(30, 40);
+
         pancurses::cbreak();
         pancurses::noecho();
         pancurses::start_color();
@@ -92,6 +95,10 @@ impl Display {
             Some(pancurses::Input::Character(c)) => Some(c),
             _ => None,
         }
+    }
+
+    pub fn napms(&self, ms: i32) {
+        pancurses::napms(ms);
     }
 }
 
