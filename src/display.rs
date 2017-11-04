@@ -15,7 +15,7 @@ impl Display {
         window.keypad(true);
 
         #[cfg(windows)]
-        pancurses::resize_term(30, 40);
+        pancurses::resize_term(27, 34);
 
         pancurses::cbreak();
         pancurses::noecho();
@@ -47,11 +47,12 @@ impl Display {
     }
 
     pub fn draw_field(&self, field: &Field, state: &PieceState, next_piece_type: Option<u8>) {
-        let offset = 5;
+        let x_offset = 2;
+        let y_offset = 5;
         // draw field
         for (i, &row) in field.iter().enumerate() {
             for (j, &cell) in row.iter().enumerate() {
-                self.window.mv(offset + i as i32, j as i32);
+                self.window.mv(y_offset + i as i32, x_offset + j as i32);
                 self.window.attrset(pancurses::COLOR_PAIR(cell as u64));
                 self.window.addch(if cell == b'.' { '.' } else { ' ' });
             }
@@ -65,7 +66,7 @@ impl Display {
                 }
                 let y = (i as i32) + (state.y as i32);
                 let x = (j as i32) + (state.x as i32);
-                self.window.mv(offset + y, x);
+                self.window.mv(y_offset + y, x_offset + x);
                 self.window.attrset(
                     pancurses::COLOR_PAIR(state.piece_type as u64),
                 );
@@ -82,7 +83,7 @@ impl Display {
                     }
                     let y = i as i32;
                     let x = j as i32;
-                    self.window.mv(y, 3 + x);
+                    self.window.mv(y, x_offset + 3 + x);
                     self.window.attrset(
                         pancurses::COLOR_PAIR(next_piece_type as u64),
                     );
@@ -101,7 +102,7 @@ impl Display {
         self.window.attrset(
             pancurses::COLOR_PAIR(b'{' as u64),
         );
-        let ix = (core::WIDTH + 2) as i32;
+        let ix = (core::WIDTH + 4) as i32;
         for i in 0..4 {
             self.window.mv((8 + i) as i32, ix);
             let text = [
