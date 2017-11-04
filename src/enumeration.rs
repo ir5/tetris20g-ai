@@ -1,10 +1,9 @@
 //! Module for enumerating possible moves.
-use std::collections::{BinaryHeap, HashSet, HashMap};
+use std::collections::{VecDeque, HashSet, HashMap};
 use core::{Field, PieceState, new_piece, Command, CommandResult, FixedInfo, apply_command};
 
 #[derive(Debug, Eq, PartialEq, PartialOrd, Ord, Clone, Hash)]
 struct SearchNode {
-    neg_cost: i32,
     state: PieceState,
     lock_delay: i8,
     synchro_move: i8,
@@ -13,9 +12,8 @@ struct SearchNode {
 /// Enumerates possible moves in a single step.
 pub fn enumerate_single(field: &Field, piece_type: u8) -> Vec<FixedInfo> {
     let initial_state = new_piece(piece_type);
-    let mut queue = BinaryHeap::<SearchNode>::new();
-    queue.push(SearchNode {
-        neg_cost: 0,
+    let mut queue = VecDeque::<SearchNode>::new();
+    queue.push_back(SearchNode {
         state: initial_state,
         lock_delay: 0,
         synchro_move: 0,
@@ -23,7 +21,7 @@ pub fn enumerate_single(field: &Field, piece_type: u8) -> Vec<FixedInfo> {
     let mut visited: HashSet<SearchNode> = HashSet::new();
     let mut result: HashSet<FixedInfo> = HashSet::new();
 
-    while let Some(node) = queue.pop() {
+    while let Some(node) = queue.pop_front() {
         if visited.contains(&node) {
             continue;
         }
@@ -34,7 +32,7 @@ pub fn enumerate_single(field: &Field, piece_type: u8) -> Vec<FixedInfo> {
             if visited.contains(&new_node) {
                 continue;
             }
-            queue.push(new_node);
+            queue.push_back(new_node);
         }
         for fixed_info in fixed_infos {
             result.insert(fixed_info);
@@ -98,7 +96,6 @@ fn transition(node: &SearchNode, field: &Field) -> (Vec<SearchNode>, Vec<FixedIn
                     }
                 }
                 let new_node = SearchNode {
-                    neg_cost: node.neg_cost - 1,
                     state: next_state,
                     lock_delay: next_lock_delay,
                     synchro_move,
@@ -117,18 +114,17 @@ fn transition(node: &SearchNode, field: &Field) -> (Vec<SearchNode>, Vec<FixedIn
 
 pub fn find_command_sequence(field: &Field, piece_type: u8, dest_state: &PieceState) -> Vec<Command> {
     let initial_state = new_piece(piece_type);
-    let mut queue = BinaryHeap::<(SearchNode, SearchNode)>::new(); // (current, previous)
+    let mut queue = VecDeque::<(SearchNode, SearchNode)>::new(); // (current, previous)
     let initial_node = SearchNode {
-        neg_cost: 0,
         state: initial_state,
         lock_delay: 0,
         synchro_move: 0,
     };
-    queue.push((initial_node.clone(), initial_node.clone()));
+    queue.push_back((initial_node.clone(), initial_node.clone()));
     let mut visited: HashMap<SearchNode, SearchNode> = HashMap::new();
 
     let mut last_node = initial_node.clone();  // dummy
-    'search_loop: while let Some((node, prev)) = queue.pop() {
+    'search_loop: while let Some((node, prev)) = queue.pop_front() {
         if visited.contains_key(&node) {
             continue;
         }
@@ -136,7 +132,7 @@ pub fn find_command_sequence(field: &Field, piece_type: u8, dest_state: &PieceSt
 
         let (new_nodes, fixed_infos) = transition(&node, &field);
         for new_node in new_nodes {
-            queue.push((new_node, node.clone()));
+            queue.push_back((new_node, node.clone()));
         }
         for fixed_info in fixed_infos {
             if fixed_info.last_state == *dest_state {

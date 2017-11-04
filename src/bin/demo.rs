@@ -1,3 +1,4 @@
+extern crate pancurses;
 extern crate rand;
 extern crate structopt;
 #[macro_use]
@@ -50,6 +51,8 @@ fn main() {
             for command in seq {
                 display.draw(&field, &state, Some(next2_piece));
                 let _ = display.wait_key();
+                // pancurses::half_delay(2);
+                // sleep(time::Duration::from_millis(10000));
 
                 match core::apply_command(&field, &state, &command) {
                     core::CommandResult::Moved(new_state, _) => {
