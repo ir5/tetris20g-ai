@@ -17,7 +17,7 @@ use tetris20g_ai::utility;
 #[derive(StructOpt, Debug)]
 #[structopt(name = "demo", about = "Demonstration version.")]
 struct Opt {
-    #[structopt(long = "file", default_value = "weights__1.txt",
+    #[structopt(long = "file", default_value = "resources/weights__1.txt",
     help = "Weights file name.")]
     file: String,
 
