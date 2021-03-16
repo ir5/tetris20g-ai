@@ -53,7 +53,7 @@ impl Display {
         for (i, &row) in field.iter().enumerate() {
             for (j, &cell) in row.iter().enumerate() {
                 self.window.mv(y_offset + i as i32, x_offset + j as i32);
-                self.window.attrset(pancurses::COLOR_PAIR(cell as u64));
+                self.window.attrset(pancurses::COLOR_PAIR(cell as u32));
                 self.window.addch(if cell == b'.' { '.' } else { ' ' });
             }
         }
@@ -68,7 +68,7 @@ impl Display {
                 let x = (j as i32) + (state.x as i32);
                 self.window.mv(y_offset + y, x_offset + x);
                 self.window.attrset(
-                    pancurses::COLOR_PAIR(state.piece_type as u64),
+                    pancurses::COLOR_PAIR(state.piece_type as u32),
                 );
                 self.window.addch('#');
             }
@@ -85,7 +85,7 @@ impl Display {
                     let x = j as i32;
                     self.window.mv(y, x_offset + 3 + x);
                     self.window.attrset(
-                        pancurses::COLOR_PAIR(next_piece_type as u64),
+                        pancurses::COLOR_PAIR(next_piece_type as u32),
                     );
                     self.window.addch(' ');
                 }
@@ -100,7 +100,7 @@ impl Display {
 
     pub fn draw_score_info(&self, score_info: &core::ScoreInfo) {
         self.window.attrset(
-            pancurses::COLOR_PAIR(b'{' as u64),
+            pancurses::COLOR_PAIR(b'{' as u32),
         );
         let ix = (core::WIDTH + 4) as i32;
         for i in 0..4 {
