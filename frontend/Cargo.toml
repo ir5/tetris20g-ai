@@ -1,5 +1,5 @@
 [package]
-name = "tetris20g-ai-frontend"
+name = "frontend"
 version = "0.1.0"
 authors = ["Mitsuru Kusumoto <kusumoto.mitsuru@gmail.com>"]
 edition = "2018"
@@ -25,6 +25,8 @@ console_error_panic_hook = { version = "0.1.6", optional = true }
 #
 # Unfortunately, `wee_alloc` requires nightly Rust when targeting wasm for now.
 wee_alloc = { version = "0.4.5", optional = true }
+
+tetris20g_ai = { path = "../tetris20g_ai" }
 
 [dev-dependencies]
 wasm-bindgen-test = "0.3.13"

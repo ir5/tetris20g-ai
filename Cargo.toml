@@ -1,5 +1,5 @@
 [workspace]
 
 members = [
-  "tetris20g_ai", "cli"
+  "tetris20g_ai", "cli", "frontend"
 ]

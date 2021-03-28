@@ -1,4 +1,9 @@
 use wasm_bindgen::prelude::*;
+use tetris20g_ai::core::{ScoreInfo, Field, EMPTY_FIELD};
+use tetris20g_ai::agent::TwoStepSearchAgent;
+use tetris20g_ai::enumeration::find_command_sequence;
+use tetris20g_ai::utility;
+use tetris20g_ai::regressor::LinearRegressor;
 
 // When the `wee_alloc` feature is enabled, use `wee_alloc` as the global
 // allocator.
@@ -7,31 +12,36 @@ use wasm_bindgen::prelude::*;
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 
 #[wasm_bindgen]
-pub struct GameInfo {
-    field: Vec<u8>,
-    next: Vec<u8>,
-    scores: Vec<i32>,
+pub struct GameManager {
+    agent: TwoStepSearchAgent,
+    field: Field,
+    seq: Vec<u8>,
+    score_info: ScoreInfo,
 }
 
 #[wasm_bindgen]
-pub struct Hoge {
-    a: i32,
-}
+impl GameManager {
+    pub fn new(param_string: &str, seq_string: &str) -> GameManager {
+        let agent = TwoStepSearchAgent::new_direct(&param_string);
+        let field = EMPTY_FIELD;
+        let seq: Vec<u8> = seq_string.bytes().collect();
+        let score_info = ScoreInfo::new();
 
-#[wasm_bindgen]
-impl Hoge {
-    pub fn new() -> Hoge {
-        Hoge {
-            a: 123
+        GameManager {
+            agent,
+            field,
+            seq,
+            score_info
         }
     }
 
-    pub fn get_a(&self) -> i32 {
-        self.a
+    pub fn step(&mut self) {
     }
 }
 
 #[wasm_bindgen]
-pub fn greet() {
-    "Hello, wasm-game-of-life!";
+pub fn greet(param_string: &str) {
+    let agent = TwoStepSearchAgent::new_direct(param_string);
+    let mut reg = LinearRegressor::new();
+    reg.load_direct("1 2 3");
 }

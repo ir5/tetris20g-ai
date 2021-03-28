@@ -50,6 +50,12 @@ impl LinearRegressor {
             .collect();
     }
 
+    pub fn load_direct(&mut self, param_string: &str) {
+        self.params = param_string.split_whitespace()
+            .map(|x| x.parse::<f32>().unwrap())
+            .collect();
+    }
+
     pub fn predict(&self, field: &Field) -> f32 {
         let feature = extract_feature(&field);
         self.params.iter().zip(feature.iter()).fold(

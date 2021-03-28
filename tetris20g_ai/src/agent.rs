@@ -21,6 +21,13 @@ impl TwoStepSearchAgent {
         let report_string = String::from("");
         TwoStepSearchAgent { regressor, report_string }
     }
+
+    pub fn new_direct(param_string: &str) -> TwoStepSearchAgent {
+        let mut regressor = LinearRegressor::new();
+        regressor.load_direct(&param_string);
+        let report_string = String::from("");
+        TwoStepSearchAgent { regressor, report_string }
+    }
 }
 
 impl Agent for TwoStepSearchAgent {
