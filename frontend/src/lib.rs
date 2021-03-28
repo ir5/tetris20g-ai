@@ -7,11 +7,31 @@ use wasm_bindgen::prelude::*;
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 
 #[wasm_bindgen]
-extern {
-    fn alert(s: &str);
+pub struct GameInfo {
+    field: Vec<u8>,
+    next: Vec<u8>,
+    scores: Vec<i32>,
+}
+
+#[wasm_bindgen]
+pub struct Hoge {
+    a: i32,
+}
+
+#[wasm_bindgen]
+impl Hoge {
+    pub fn new() -> Hoge {
+        Hoge {
+            a: 123
+        }
+    }
+
+    pub fn get_a(&self) -> i32 {
+        self.a
+    }
 }
 
 #[wasm_bindgen]
 pub fn greet() {
-    alert("Hello, wasm-game-of-life!");
+    "Hello, wasm-game-of-life!";
 }
