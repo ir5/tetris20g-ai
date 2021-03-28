@@ -28,7 +28,7 @@ pub struct GameManager {
 impl GameManager {
     pub fn new(param_string: &str, seq_string: &str) -> GameManager {
         let agent = TwoStepSearchAgent::new_direct(&param_string);
-        let mut field = core::EMPTY_FIELD;
+        let field = core::EMPTY_FIELD;
         let seq: Vec<u8> = seq_string.bytes().collect();
         let score_info = core::ScoreInfo::new();
         let step = 0;
@@ -76,6 +76,18 @@ impl GameManager {
         }
 
         current
+    }
+
+    pub fn del_counts(&self) -> Vec<usize> {
+        self.score_info.del_counts.to_vec()
+    }
+
+    pub fn total_lines(&self) -> usize {
+        self.score_info.total_lines
+    }
+
+    pub fn steps(&self) -> usize {
+        self.score_info.steps
     }
 
     fn reset(&mut self) {

@@ -12,6 +12,8 @@ const canvas = document.getElementById("canvas")
 canvas.height = pp * 26;
 canvas.width = pp * 12;
 
+const score_info = document.getElementById("score_info")
+
 const empty = '.'.charCodeAt();
 let colormap1 = [];
 colormap1['I'.charCodeAt()] = "#cc2222";
@@ -31,7 +33,9 @@ colormap2['L'.charCodeAt()] = "#ff8833";
 colormap2['J'.charCodeAt()] = "#3333ff";
 colormap2['T'.charCodeAt()] = "#33ffff";
 
-function render(field, current_piece) {
+function render(m) {
+  let field = m.render_field();
+  let current_piece = m.render_current_piece()
   let ctx = canvas.getContext('2d');
 
   // fill in black
@@ -82,11 +86,22 @@ function render(field, current_piece) {
   ctx.beginPath();
   ctx.fillStyle = "#dddddd"
   ctx.fillRect(0, 4 * pp, 12 * pp, pp);
-  ctx.fillRect(0, 25 * pp, 12 * pp, pp);
+  ctx.fillRect(0, 25 * pp + 1, 12 * pp, pp);
   ctx.fillRect(0, 4 * pp, pp, 22 * pp);
   ctx.fillRect(11 * pp + 1, 4 * pp, pp, 22 * pp);
 
   ctx.stroke();
+
+  // show score info
+  let counts = m.del_counts();
+  score_info.textContent =
+    "Single: " + counts[0] + "\n" +
+    "Double: " + counts[1] + "\n" +
+    "Triple: " + counts[2] + "\n" +
+    "Quad:   " + counts[3] + "\n" +
+    "\n" +
+    "Lines:  " + m.total_lines() + "\n" +
+    "Pieces: " + m.steps();
 }
 
 function render_debug(field, current_piece) {
@@ -129,7 +144,7 @@ getWeights().then(data => {
 
     if (elapsed > 60) {
       m.act();
-      render(m.render_field(), m.render_current_piece());
+      render(m);
       start = timestamp;
     }
 
