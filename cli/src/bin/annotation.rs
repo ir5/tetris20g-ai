@@ -9,7 +9,7 @@ extern crate tetris20g_ai;
 use chrono::prelude::*;
 use structopt::StructOpt;
 
-use tetris20g_ai::display::Display;
+use cli::display::Display;
 use tetris20g_ai::human_manipulation::Game;
 use tetris20g_ai::utility;
 

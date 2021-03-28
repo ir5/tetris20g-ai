@@ -2,8 +2,8 @@
 //! in CUI interface.
 extern crate pancurses;
 
-use core;
-use core::{Field, PieceState};
+use tetris20g_ai::core;
+use tetris20g_ai::core::{Field, PieceState};
 
 pub struct Display {
     window: pancurses::Window,

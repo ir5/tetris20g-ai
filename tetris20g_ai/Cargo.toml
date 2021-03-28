@@ -1,5 +1,5 @@
 [package]
-name = "tetris20-ai"
+name = "tetris20g_ai"
 version = "0.1.0"
 authors = ["Mitsuru Kusumoto <kusumoto.mitsuru@gmail.com>"]
 
@@ -8,7 +8,6 @@ name = "tetris20g_ai"
 path = "src/lib.rs"
 
 [dependencies]
-pancurses = "0.11"
 rand = "0.3"
 serde = "1.0"
 serde_derive = "1.0"

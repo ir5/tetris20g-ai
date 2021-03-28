@@ -1,0 +1,20 @@
+[package]
+name = "cli"
+version = "0.1.0"
+authors = ["Mitsuru Kusumoto <kusumoto.mitsuru@gmail.com>"]
+edition = "2018"
+
+[lib]
+name = "cli"
+path = "src/lib.rs"
+
+[dependencies]
+tetris20g_ai = { path = "../tetris20g_ai" }
+pancurses = "0.11"
+rand = "0.3"
+chrono = "0.4"
+structopt = "0.1.0"
+structopt-derive = "0.1.0"
+
+[profile.release]
+opt-level = 3

@@ -3,7 +3,7 @@ extern crate rand;
 extern crate tetris20g_ai;
 
 use tetris20g_ai::core;
-use tetris20g_ai::display::Display;
+use cli::display::Display;
 use tetris20g_ai::enumeration::enumerate_multi;
 use tetris20g_ai::utility;
 

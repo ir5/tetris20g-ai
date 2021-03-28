@@ -10,7 +10,7 @@ use structopt::StructOpt;
 use tetris20g_ai::agent;
 use tetris20g_ai::agent::Agent;
 use tetris20g_ai::core;
-use tetris20g_ai::display::Display;
+use cli::display::Display;
 use tetris20g_ai::enumeration::find_command_sequence;
 use tetris20g_ai::utility;
 
