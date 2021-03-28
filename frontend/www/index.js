@@ -14,33 +14,34 @@ canvas.width = pp * 12;
 
 const empty = '.'.charCodeAt();
 let colormap1 = [];
-colormap1['I'.charCodeAt()] = "#cc0000";
-colormap1['O'.charCodeAt()] = "#cccc00";
-colormap1['S'.charCodeAt()] = "#cc00cc";
-colormap1['Z'.charCodeAt()] = "#00cc00";
-colormap1['L'.charCodeAt()] = "#cc6600";
-colormap1['J'.charCodeAt()] = "#0000cc";
-colormap1['T'.charCodeAt()] = "#00cccc";
+colormap1['I'.charCodeAt()] = "#cc2222";
+colormap1['O'.charCodeAt()] = "#cccc22";
+colormap1['S'.charCodeAt()] = "#cc22cc";
+colormap1['Z'.charCodeAt()] = "#22cc22";
+colormap1['L'.charCodeAt()] = "#cc6622";
+colormap1['J'.charCodeAt()] = "#2222ff";
+colormap1['T'.charCodeAt()] = "#22cccc";
 
 let colormap2 = [];
-colormap2['I'.charCodeAt()] = "#ff0000";
-colormap2['O'.charCodeAt()] = "#ffff00";
-colormap2['S'.charCodeAt()] = "#ff00ff";
-colormap2['Z'.charCodeAt()] = "#00ff00";
-colormap2['L'.charCodeAt()] = "#ff8800";
-colormap2['J'.charCodeAt()] = "#0000ff";
-colormap2['T'.charCodeAt()] = "#00ffff";
+colormap2['I'.charCodeAt()] = "#ff3333";
+colormap2['O'.charCodeAt()] = "#ffff33";
+colormap2['S'.charCodeAt()] = "#ff33ff";
+colormap2['Z'.charCodeAt()] = "#33ff33";
+colormap2['L'.charCodeAt()] = "#ff8833";
+colormap2['J'.charCodeAt()] = "#3333ff";
+colormap2['T'.charCodeAt()] = "#33ffff";
 
 function render(field, current_piece) {
   let ctx = canvas.getContext('2d');
 
-  // draw grid
+  // fill in black
+  ctx.fillStyle = "#000000"
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
   const offx = pp;
   const offy = pp * 5;
-  ctx.beginPath();
-  // ctx.strokeStyle = "#111111";
 
-
+  // draw blocks
   for (let i = 0; i < 20; i++) {
     for (let j = 0; j < 10; j++) {
       const idx = i * 10 + j;
@@ -50,7 +51,7 @@ function render(field, current_piece) {
       } else if (current_piece[idx] != empty) {
         color = colormap2[current_piece[idx]];
       } else {
-        color = "#ffffff";
+        color = "#000000";
       }
 
       if (color) {
@@ -64,6 +65,8 @@ function render(field, current_piece) {
     }
   }
 
+  // draw grid
+  ctx.beginPath();
   for (let j = 0; j <= 10; j++) {
     ctx.moveTo(0.5 + offx + pp * j, offy);
     ctx.lineTo(0.5 + offx + pp * j, offy + pp * 20);
@@ -73,6 +76,16 @@ function render(field, current_piece) {
     ctx.lineTo(offx + pp * 10, 0.5 + offy + pp * i);
   }
   ctx.lineWidth = 1;
+  ctx.stroke();
+
+  // draw frame
+  ctx.beginPath();
+  ctx.fillStyle = "#dddddd"
+  ctx.fillRect(0, 4 * pp, 12 * pp, pp);
+  ctx.fillRect(0, 25 * pp, 12 * pp, pp);
+  ctx.fillRect(0, 4 * pp, pp, 22 * pp);
+  ctx.fillRect(11 * pp + 1, 4 * pp, pp, 22 * pp);
+
   ctx.stroke();
 }
 
