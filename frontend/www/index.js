@@ -37,9 +37,18 @@ getWeights().then(data => {
   let m = GameManager.new(data, seq);
   let pre = document.getElementById("canvas");
 
-  const renderLoop = () => {
-    m.act();
-    pre.textContent = render(m.render_field(), m.render_current_piece());
+  let start;
+  const renderLoop = (timestamp) => {
+    if (start === undefined) {
+      start = timestamp;
+    }
+    const elapsed = timestamp - start;
+
+    if (elapsed > 60) {
+      m.act();
+      pre.textContent = render(m.render_field(), m.render_current_piece());
+      start = timestamp;
+    }
 
     requestAnimationFrame(renderLoop);
   };
