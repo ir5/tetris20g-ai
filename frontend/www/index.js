@@ -8,11 +8,17 @@ async function getWeights() {
 
 const keys = "IOSZJLT";
 let seq = "";
-for (let i = 0; i < 100000; i++) {
+for (let i = 0; i < 10000; i++) {
   seq += keys[Math.floor(Math.random() * 7)];
 }
 console.log(seq);
 
 getWeights().then(data => {
   let m = GameManager.new(data, seq);
+  m.act();
+  console.log(m.render_field());
+  console.log(m.render_current_piece());
+  //console.log(m.field());
+  // let pre = document.getElementById("canvas");
+  // pre.textContent
 });
