@@ -28,7 +28,7 @@ pub struct GameManager {
 impl GameManager {
     pub fn new(param_string: &str, seq_string: &str) -> GameManager {
         let agent = TwoStepSearchAgent::new_direct(&param_string);
-        let field = core::EMPTY_FIELD;
+        let mut field = core::EMPTY_FIELD;
         let seq: Vec<u8> = seq_string.bytes().collect();
         let score_info = core::ScoreInfo::new();
         let step = 0;
@@ -65,7 +65,11 @@ impl GameManager {
                 if cell == b'.' {
                     continue;
                 }
-                let y = ((i as i32) + (self.state.y as i32)) as usize;
+                let y = (i as i32) + (self.state.y as i32);
+                if y < 0 {
+                    continue;
+                }
+                let y = y as usize;
                 let x = ((j as i32) + (self.state.x as i32)) as usize;
                 current[y * core::WIDTH + x] = self.state.piece_type;
             }
@@ -76,9 +80,11 @@ impl GameManager {
 
     fn reset(&mut self) {
         self.field = core::EMPTY_FIELD;
-        self.step = (self.step + 100) % self.seq.len();
+        self.step = (self.step + 10) % self.seq.len();
         self.score_info = core::ScoreInfo::new();
         self.state = core::new_piece(b'I'); // dummy piece
+        self.commands = vec![];
+        self.i_command = 0;
     }
 
     fn next_prediction(&mut self) {
