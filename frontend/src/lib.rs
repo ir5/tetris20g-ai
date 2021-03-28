@@ -20,6 +20,7 @@ pub struct GameManager {
     score_info: core::ScoreInfo,
     step: usize,
     commands: Vec<core::Command>,
+    i_command: usize,
     state: core::PieceState,
 }
 
@@ -32,6 +33,7 @@ impl GameManager {
         let score_info = core::ScoreInfo::new();
         let step = 0;
         let commands: Vec<core::Command> = vec![];
+        let i_command = 0;
         let state = core::new_piece(b'I'); // dummy piece
 
         GameManager {
@@ -41,6 +43,7 @@ impl GameManager {
             score_info,
             step,
             commands,
+            i_command,
             state,
         }
     }
@@ -71,23 +74,31 @@ impl GameManager {
         current
     }
 
+    fn reset(&mut self) {
+        self.field = core::EMPTY_FIELD;
+        self.step = (self.step + 100) % self.seq.len();
+        self.score_info = core::ScoreInfo::new();
+        self.state = core::new_piece(b'I'); // dummy piece
+    }
+
     pub fn act(&mut self) {
         let next_piece = self.seq[self.step % self.seq.len()];
         let next2_piece = self.seq[(self.step + 1) % self.seq.len()];
 
-        if self.commands.len() == 0 {
+        if self.i_command >= self.commands.len() {
             let prediction = self.agent.predict(&self.field, next_piece, next2_piece);
 
             let dest_state = match prediction {
-                None => return,
+                None => { self.reset(); return; },
                 Some(state) => state,
             };
 
             self.commands = enumeration::find_command_sequence(&self.field, next_piece, &dest_state);
             self.state = core::new_piece(next_piece);
+            self.i_command = 0;
         }
 
-        let command = &self.commands[0];
+        let command = &self.commands[self.i_command];
         match core::apply_command(&self.field, &self.state, &command) {
             core::CommandResult::Moved(new_state, _) => {
                 self.state = new_state;
@@ -95,9 +106,11 @@ impl GameManager {
             core::CommandResult::Fixed(info) => {
                 self.field = info.new_field.clone();
                 self.score_info.update(info.del);
+                self.step += 1;
             }
             _ => (),
         }
+        self.i_command += 1;
     }
 }
 
