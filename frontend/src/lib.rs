@@ -81,21 +81,25 @@ impl GameManager {
         self.state = core::new_piece(b'I'); // dummy piece
     }
 
-    pub fn act(&mut self) {
+    fn next_prediction(&mut self) {
         let next_piece = self.seq[self.step % self.seq.len()];
         let next2_piece = self.seq[(self.step + 1) % self.seq.len()];
 
+        let prediction = self.agent.predict(&self.field, next_piece, next2_piece);
+
+        let dest_state = match prediction {
+            None => { self.reset(); return; },
+            Some(state) => state,
+        };
+
+        self.commands = enumeration::find_command_sequence(&self.field, next_piece, &dest_state);
+        self.state = core::new_piece(next_piece);
+        self.i_command = 0;
+    }
+
+    pub fn act(&mut self) {
         if self.i_command >= self.commands.len() {
-            let prediction = self.agent.predict(&self.field, next_piece, next2_piece);
-
-            let dest_state = match prediction {
-                None => { self.reset(); return; },
-                Some(state) => state,
-            };
-
-            self.commands = enumeration::find_command_sequence(&self.field, next_piece, &dest_state);
-            self.state = core::new_piece(next_piece);
-            self.i_command = 0;
+            self.next_prediction();
         }
 
         let command = &self.commands[self.i_command];
@@ -111,6 +115,10 @@ impl GameManager {
             _ => (),
         }
         self.i_command += 1;
+
+        if self.i_command >= self.commands.len() {
+            self.next_prediction();
+        }
     }
 }
 
