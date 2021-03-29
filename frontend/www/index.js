@@ -16,23 +16,23 @@ const score_info = document.getElementById("score_info")
 
 const empty = '.'.charCodeAt();
 let colormap1 = [];
-colormap1['I'.charCodeAt()] = "#cc2222";
-colormap1['O'.charCodeAt()] = "#cccc22";
-colormap1['S'.charCodeAt()] = "#cc22cc";
-colormap1['Z'.charCodeAt()] = "#22cc22";
-colormap1['L'.charCodeAt()] = "#cc6622";
+colormap1['I'.charCodeAt()] = "#ff1111";
+colormap1['O'.charCodeAt()] = "#ffff11";
+colormap1['S'.charCodeAt()] = "#ff11ff";
+colormap1['Z'.charCodeAt()] = "#11ff11";
+colormap1['L'.charCodeAt()] = "#ff6600";
 colormap1['J'.charCodeAt()] = "#2222ff";
-colormap1['T'.charCodeAt()] = "#22cccc";
+colormap1['T'.charCodeAt()] = "#11ffff";
 
 let colormap2 = [];
 colormap2[empty] = "#000000";
 colormap2['I'.charCodeAt()] = "#ff3333";
-colormap2['O'.charCodeAt()] = "#ffff33";
-colormap2['S'.charCodeAt()] = "#ff33ff";
-colormap2['Z'.charCodeAt()] = "#33ff33";
-colormap2['L'.charCodeAt()] = "#ff8833";
-colormap2['J'.charCodeAt()] = "#3333ff";
-colormap2['T'.charCodeAt()] = "#33ffff";
+colormap2['O'.charCodeAt()] = "#ffff44";
+colormap2['S'.charCodeAt()] = "#ff44ff";
+colormap2['Z'.charCodeAt()] = "#44ff44";
+colormap2['L'.charCodeAt()] = "#ff8822";
+colormap2['J'.charCodeAt()] = "#4444ff";
+colormap2['T'.charCodeAt()] = "#44ffff";
 
 function render(m) {
   let field = m.render_field();
