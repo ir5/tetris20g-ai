@@ -25,6 +25,7 @@ colormap1['J'.charCodeAt()] = "#2222ff";
 colormap1['T'.charCodeAt()] = "#22cccc";
 
 let colormap2 = [];
+colormap2[empty] = "#000000";
 colormap2['I'.charCodeAt()] = "#ff3333";
 colormap2['O'.charCodeAt()] = "#ffff33";
 colormap2['S'.charCodeAt()] = "#ff33ff";
@@ -36,6 +37,7 @@ colormap2['T'.charCodeAt()] = "#33ffff";
 function render(m) {
   let field = m.render_field();
   let current_piece = m.render_current_piece()
+  let next_piece = m.render_next_piece()
   let ctx = canvas.getContext('2d');
 
   // fill in black
@@ -62,7 +64,7 @@ function render(m) {
         ctx.beginPath();
         ctx.fillStyle = color;
         ctx.fillRect(
-          offx + pp * j + 1, offy + pp * i + 1,
+          offx + pp * j, offy + pp * i,
           pp, pp
         );
       }
@@ -78,6 +80,32 @@ function render(m) {
   for (let i = 0; i <= 20; i++) {
     ctx.moveTo(offx, 0.5 + offy + pp * i);
     ctx.lineTo(offx + pp * 10, 0.5 + offy + pp * i);
+  }
+  ctx.lineWidth = 1;
+  ctx.stroke();
+
+  // draw next piece
+  for (let i = 1; i < 4; i++) {
+    for (let j = 0; j < 4; j++) {
+      const idx = i * 4 + j;
+      let color = colormap2[next_piece[idx]];
+
+      ctx.beginPath();
+      ctx.fillStyle = color;
+      ctx.fillRect(
+        pp * 4 + pp * j, -pp + pp * i,
+        pp, pp
+      );
+    }
+  }
+  ctx.beginPath();
+  for (let j = 0; j <= 4; j++) {
+    ctx.moveTo(pp * 4 + 0.5 + pp * j, pp);
+    ctx.lineTo(pp * 4 + 0.5 + pp * j, pp * 3);
+  }
+  for (let i = 1; i <= 3; i++) {
+    ctx.moveTo(pp * 4, 0.5 + pp * i);
+    ctx.lineTo(pp * 4 + pp * 10, 0.5 + pp * i);
   }
   ctx.lineWidth = 1;
   ctx.stroke();
@@ -129,7 +157,6 @@ let seq = "";
 for (let i = 0; i < 10000; i++) {
   seq += keys[Math.floor(Math.random() * 7)];
 }
-console.log(seq);
 
 getWeights().then(data => {
   let m = GameManager.new(data, seq);

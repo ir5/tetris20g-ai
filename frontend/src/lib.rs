@@ -78,6 +78,30 @@ impl GameManager {
         current
     }
 
+    pub fn render_next_piece(&self) -> Vec<u8> {
+        let mut disp: Vec<u8> = vec![b'.'; 4 * 4];
+        let next_piece_type = self.seq[(self.step + 1) % self.seq.len()];
+
+        if next_piece_type == b'I' {
+            // I is special...
+            disp[3 * 4 + 0] = b'I';
+            disp[3 * 4 + 1] = b'I';
+            disp[3 * 4 + 2] = b'I';
+            disp[3 * 4 + 3] = b'I';
+        } else {
+            let shape = core::shape(next_piece_type, 0);
+            for (i, &row) in shape.iter().enumerate() {
+                for (j, cell) in row.bytes().enumerate() {
+                    if cell == b'#' {
+                        disp[4 * i + j] = next_piece_type;
+                    }
+                }
+            }
+        }
+
+        disp
+    }
+
     pub fn del_counts(&self) -> Vec<usize> {
         self.score_info.del_counts.to_vec()
     }
